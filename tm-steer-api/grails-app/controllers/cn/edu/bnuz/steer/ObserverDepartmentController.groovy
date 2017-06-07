@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 学院督导管理
  */
-@PreAuthorize('hasAuthority("PERM_CO_SUPERVISOR_ADMIN")')
+@PreAuthorize('hasAuthority("PERM_OBSERVER_DEPT_ADMIN")')
 class ObserverDepartmentController {
     ObserverSettingService observerSettingService
     SecurityService securityService
@@ -19,7 +19,7 @@ class ObserverDepartmentController {
     TermService termService
     def index() {
         def collegeSupervisor = messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
-        renderJson(observerDepartmentService.list(securityService.departmentId, collegeSupervisor))
+        renderJson(observerDepartmentService.list(securityService.departmentId))
     }
 
 
@@ -30,10 +30,7 @@ class ObserverDepartmentController {
         ObserverCommand cmd = new ObserverCommand()
         bindData cmd, request.JSON
         log.debug cmd.tostring()
-        cmd.departmentId = ''
-        def type = messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
-        def supervisorRole=ObserverType.findByName(type)
-        cmd.roleType = supervisorRole?.id
+        cmd.observerType = 2 //院督导
         println cmd.tostring()
         def form=observerSettingService.save(cmd)
         if(form)  renderJson([id:form?.id])
@@ -45,10 +42,7 @@ class ObserverDepartmentController {
      * 创建
      */
     def create(){
-        println "ObserverDepartmentController"
-        def type = messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
         renderJson(
-                roles: observerSettingService.roleTypes().grep{it.name == type},
                 activeTerm: termService.activeTerm?.id,
                 terms: observerSettingService.terms
 

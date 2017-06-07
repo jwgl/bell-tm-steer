@@ -7,7 +7,7 @@ import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 
-@PreAuthorize('hasAuthority("PERM_SUPERVISOR_WRITE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVATION_WRITE")')
 class ObservationFormController {
     ReportClientService reportClientService
     SecurityService securityService

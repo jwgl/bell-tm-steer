@@ -3,37 +3,36 @@ package cn.edu.bnuz.steer
 import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.organization.Teacher
+import cn.edu.bnuz.bell.security.SecurityService
 import grails.transaction.Transactional
 
 @Transactional
 class ApprovalService {
     ScheduleService scheduleService
     ObserverSettingService observerSettingService
-    def messageSource
+    SecurityService securityService
 
     def list(String userId, Integer termId){
         def me = Teacher.load(userId)
         if (!me) return null
-        def isAdmin = observerSettingService.isAdmin(userId)
+        def isAdmin = observerSettingService.isAdmin()
         def dept=isAdmin? "%" : me.department.name
-        def collegeSupervisor=
-                isAdmin? messageSource.getMessage("main.supervisor.university",null, Locale.CHINA) :
-                messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
+        def type= isAdmin? 1 : 2
         ObservationForm.executeQuery '''
 select new map(
   form.id as id,
   form.supervisorDate as supervisorDate,
   form.evaluateLevel as evaluateLevel,
   form.status as status,
-  observerType.name as typeName,
+  form.observerType as observerType,
   schedule.id as scheduleId,
   courseClass.name as courseClassName,
   courseClass.term.id as termId,
   department.name as department,
   scheduleTeacher.id as teacherId,
   scheduleTeacher.name as teacherName,
-  observer.id as supervisorId,
-  observer.name as supervisorName,
+  observer.id as observerId,
+  observer.name as observerName,
   schedule.dayOfWeek as dayOfWeek,
   schedule.startSection as startSection,
   schedule.totalSection as totalSection,
@@ -42,7 +41,6 @@ select new map(
 )
 from ObservationForm form
 join form.taskSchedule schedule
-join form.observerType observerType
 join form.observer observer
 join schedule.task task
 join task.courseClass courseClass
@@ -52,19 +50,17 @@ join schedule.teacher scheduleTeacher
 left join schedule.place place
 where observer.department.name like :dept
   and form.status > 0
-  and observerType.name = :role
+  and form.observerType = :type
   and courseClass.term.id = :termId
 order by form.supervisorDate
-''', [dept: dept, role: collegeSupervisor, termId: termId]
+''', [dept: dept, type: type, termId: termId]
     }
 
-    def getFormForShow(String userId, Long id){
+    def getFormForShow(Long id){
         def form = ObservationForm.get(id)
-        def me = Teacher.load(userId)
-        if (!me) return null
         if(form) {
-            def isAdmin = observerSettingService.isAdmin(userId)
-            if(!isAdmin && form.teacher?.department?.id !=me.department?.id){
+            def isAdmin = observerSettingService.isAdmin()
+            if(!isAdmin && form.teacher?.department?.id !=securityService.departmentId){
                 throw new BadRequestException()
             }
             def schedule = scheduleService.showSchedule(form.taskSchedule.id.toString())
@@ -89,8 +85,7 @@ order by form.supervisorDate
                 totalSection: form.totalSection,
                 teachingMethods: form.teachingMethods,
                 supervisorDate: form.supervisorDate,
-                type: form.observerType.id,
-                typeName: form.observerType.name,
+                type: form.observerType,
                 place: form.place,
                 earlier: form.earlier,
                 late: form.late,
@@ -107,13 +102,12 @@ order by form.supervisorDate
 
     }
 
-    def feed(String userId, Long id){
+    def feed(Long id){
         def form = ObservationForm.get(id)
 
         if(form) {
-            def isAdmin = observerSettingService.isAdmin(userId)
-            def me = Teacher.load(userId)
-            if (!isAdmin && (!me || me.department?.id !=form.observer?.department?.id)) {
+            def isAdmin = observerSettingService.isAdmin()
+            if (!isAdmin && securityService.departmentId !=form.observer?.department?.id) {
                 throw new ForbiddenException()
             }
             if (form.status!=1) {

@@ -1,25 +1,27 @@
 package cn.edu.bnuz.steer
 
 import cn.edu.bnuz.bell.master.TermService
+import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 import cn.edu.bnuz.bell.organization.Teacher
 
 /**
  * 课表
  */
-@PreAuthorize('hasAuthority("PERM_SUPERVISOR_WRITE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVATION_WRITE")')
 class ScheduleController {
     ScheduleService scheduleService
     TermService termService
     ObservationFormService observationFormService
     ReportService reportService
+    SecurityService securityService
 
-    def show(String userId, String id) {
-        renderJson(scheduleService.getSchedule(userId, id))
+    def show(String id) {
+        renderJson(scheduleService.getSchedule(securityService.userId, id))
     }
 
-    def create(String userId) {
-        renderJson(scheduleService.getFormForCreate(userId))
+    def create() {
+        renderJson(scheduleService.getFormForCreate(securityService.userId))
     }
 
     def save(String userId) {
@@ -45,7 +47,16 @@ class ScheduleController {
         renderJson(scheduleService.findPlace(building, q))
     }
 
-    def findSchedule(String userId){
+    def findSchedule(){
+        String type = params.type
+        switch (type){
+            case "multicriteria":  multiCriteria(); break;
+            case "place":          findPlaceSchedule(); break;
+            case "teacher":        findTeacherSchedule(); break;
+        }
+    }
+
+    def multiCriteria(){
         SheduleOptionsCommand cmd = new SheduleOptionsCommand()
         cmd.teacherId = params['teacherId']
         cmd.place = params['place']
@@ -55,7 +66,7 @@ class ScheduleController {
         cmd.startSection = params.getInt('startSection')
         cmd.endSection = params.getInt('endSection')
         println cmd.tostring()
-        def schedule = scheduleService.getTeacherSchedules(userId, cmd)
+        def schedule = scheduleService.getTeacherSchedules(securityService.userId, cmd)
         renderJson(schedule)
     }
 
@@ -65,18 +76,18 @@ class ScheduleController {
         renderJson([result:result])
     }
 
-    def findTeacherSchedule(String userId){
-        String teacherId = params['teacherId']
-        Integer weekOfTerm = params.getInt('weekOfTerm')?:0
-        println(weekOfTerm)
-        def term =termService.activeTerm
-        def schedules = scheduleService.getTeacherSchedules(teacherId, term.id)
-        renderJson([schedules: schedules.grep{
-            it.startWeek <=weekOfTerm && it.endWeek >=weekOfTerm
-        }])
-    }
+//    def findTeacherSchedule(){
+//        String teacherId = params['teacherId']
+//        Integer weekOfTerm = params.getInt('weekOfTerm')?:0
+//        println(weekOfTerm)
+//        def term =termService.activeTerm
+//        def schedules = scheduleService.getTeacherSchedules(teacherId, term.id)
+//        renderJson([schedules: schedules.grep{
+//            it.startWeek <=weekOfTerm && it.endWeek >=weekOfTerm
+//        }])
+//    }
 
-    def findPlaceSchedule(String userId){
+    def findPlaceSchedule(){
         String place = params['place']
         println place
         Integer weekOfTerm = params.getInt('weekOfTerm')?:0

@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 历史遗留数据
  */
-@PreAuthorize('hasAuthority("PERM_ADMIN_SUPERVISOR_WRITE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVER_ADMIN")')
 class LegacyDataController {
     LegacyDataService legacyDataService
     def index() {

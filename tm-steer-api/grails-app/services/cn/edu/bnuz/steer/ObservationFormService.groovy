@@ -31,7 +31,7 @@ class ObservationFormService {
         if(form) {
             throw new BadRequestException()
         }
-        def isAdmin = observerSettingService.isAdmin(userId)
+        def isAdmin = observerSettingService.isAdmin()
         if(isAdmin && !cmd.supervisorId){
             throw new BadRequestException()
         }
@@ -45,7 +45,7 @@ class ObservationFormService {
                 teachingMethods: cmd.teachingMethods,
                 supervisorDate: cmd.supervisorDate,
                 recordDate: now,
-                observerType: ObserverType.load(cmd.type),
+                observerType: cmd.type,
                 place: cmd.place,
                 status: cmd.status?:0,
                 earlier: cmd.earlier,
@@ -80,7 +80,7 @@ class ObservationFormService {
         if(!form) {
             throw new NotFoundException()
         }
-        if (form.observer.id != userId && !observerSettingService.isAdmin(userId)) {
+        if (form.observer.id != userId && !observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
         if(this.cantUpdate(form)){
@@ -92,7 +92,7 @@ class ObservationFormService {
         form.totalSection= cmd.totalSection
         form.teachingMethods= cmd.teachingMethods
         form.supervisorDate= cmd.supervisorDate
-        form.observerType= ObserverType.load(cmd.type)
+        form.observerType= cmd.type
         form.earlier= cmd.earlier
         form.late=  cmd.late
         form.leave=  cmd.leave
@@ -117,7 +117,7 @@ class ObservationFormService {
 
     def list(String userId, Integer termId){
         def term = termService.activeTerm
-        def isAdmin = observerSettingService.isAdmin(userId)
+        def isAdmin = observerSettingService.isAdmin()
         def result = ObservationForm.executeQuery '''
 select new map(
   form.id as id,
@@ -126,7 +126,7 @@ select new map(
   form.status as status,
   observer.id as supervisorId,
   observer.name as supervisorName,
-  observerType.name as typeName,
+  form.observerType as observerType,
   schedule.id as scheduleId,
   courseClass.name as courseClassName,
   department.name as department,
@@ -141,7 +141,6 @@ select new map(
 from ObservationForm form
 join form.observer observer
 join form.taskSchedule schedule
-join form.observerType observerType
 join schedule.task task
 join task.courseClass courseClass
 join courseClass.course course
@@ -161,7 +160,7 @@ order by form.supervisorDate
     def getFormForEdit(String userId, Long id) {
         def form = ObservationForm.get(id)
         if(form) {
-            if (userId != form.observer.id && !observerSettingService.isAdmin(userId)) {
+            if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
             if (form.status) {
@@ -184,7 +183,7 @@ order by form.supervisorDate
         def form = ObservationForm.get(id)
 
         if(form) {
-            if (userId != form.observer.id && !observerSettingService.isAdmin(userId)) {
+            if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
             def result = scheduleService.getScheduleById(form.taskSchedule.id.toString())
@@ -201,7 +200,7 @@ order by form.supervisorDate
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
                 }
             }
-            schedule.isAdmin = observerSettingService.isAdmin(userId)
+            schedule.isAdmin = observerSettingService.isAdmin()
             return schedule
         }
         return null
@@ -210,7 +209,7 @@ order by form.supervisorDate
     def delete(String userId, Long id){
         def form = ObservationForm.get(id)
         if(form) {
-            if (userId != form.observer.id && !observerSettingService.isAdmin(userId)) {
+            if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
             if (form.status) {
@@ -225,7 +224,7 @@ order by form.supervisorDate
         def form = ObservationForm.get(id)
         if(form) {
             /*只有管理员可以撤销*/
-            if (!observerSettingService.isAdmin(userId) ) {
+            if (!observerSettingService.isAdmin() ) {
                 throw new ForbiddenException()
             }
             if (form.status!=1) {
@@ -241,7 +240,7 @@ order by form.supervisorDate
         def form = ObservationForm.get(id)
 
         if(form) {
-            if (userId != form.observer.id && !observerSettingService.isAdmin(userId)) {
+            if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
             if (form.status) {
@@ -257,7 +256,7 @@ order by form.supervisorDate
         def form = ObservationForm.get(id)
 
         if(form) {
-            if (!observerSettingService.isAdmin(userId)) {
+            if (!observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
             if (form.status!=1) {
@@ -279,8 +278,7 @@ order by form.supervisorDate
                 totalSection: form.totalSection,
                 teachingMethods: form.teachingMethods,
                 supervisorDate: form.supervisorDate,
-                type: form.observerType.id,
-                typeName: form.observerType.name,
+                observerType: form.observerType,
                 place: form.place,
                 earlier: form.earlier,
                 late: form.late,

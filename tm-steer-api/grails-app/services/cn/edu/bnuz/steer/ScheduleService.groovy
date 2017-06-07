@@ -47,7 +47,7 @@ select new map(
     p.name as name,
     p.building as building,
     p.seat as seat,
-    p.observerType as observerType
+    p.type as type
 )
  from Place p where p.enabled = true and p.isExternal=false
   and p.building like :building and p.name like :query
@@ -120,8 +120,8 @@ where courseClass.term.id = :termId
     def getSchedule(String userId, String id){
         def result = getScheduleById(id)
         def term = termService.activeTerm
-        def isAdmin = observerSettingService.isAdmin(userId)
-        def type = isAdmin? observerSettingService.findAllRoles():observerSettingService.findRolesByUserIdAndTerm(userId,term.id)
+        def isAdmin = observerSettingService.isAdmin()
+        def type = isAdmin? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(userId,term.id)
 
         return [
                 term        : [
@@ -136,7 +136,7 @@ where courseClass.term.id = :termId
                 type        : type,
                 evaluationSystem    : observationCriteriaService.observationCriteria,
                 isAdmin             : isAdmin,
-                supervisors         : isAdmin? observerSettingService.findCurrentSupervisors(term.id):null
+                supervisors         : isAdmin? observerSettingService.findCurrentObservers(term.id):null
         ]
     }
 
@@ -180,7 +180,7 @@ where place.id = :placeId
 ''', [placeId: placeId, termId: termId, weekOfTerm: weekOfTerm]
     }
 
-    List getTeacherSchedules(String teacherId, Integer termId) {
+    List getTeacherSchedules(String teacherId, Integer termId, Integer week) {
         TaskSchedule.executeQuery '''
 select new map(
   schedule.id as id,
@@ -204,8 +204,13 @@ join task.courseClass courseClass
 join courseClass.course course
 join schedule.teacher scheduleTeacher
 left join schedule.place place
-where scheduleTeacher.id = :teacherId and courseClass.term.id = :termId
-''', [teacherId: teacherId, termId: termId]
+where scheduleTeacher.id = :teacherId
+  and courseClass.term.id = :termId
+  and :week between schedule.startWeek and schedule.endWeek
+  and (schedule.oddEven = 0
+   or schedule.oddEven = 1 and :week % 2 = 1
+   or schedule.oddEven = 2 and :week % 2 = 0)
+''', [teacherId: teacherId, termId: termId, week: week]
     }
 
     private getScheduleById(String id){
@@ -243,8 +248,7 @@ where schedule.id = :id
     }
 
     boolean isCollegeSupervisor(String userId, Integer termId){
-        def collegeSupervisor=messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
-        return observerSettingService.isCollegeSupervisor(userId, termId , collegeSupervisor)
+        return observerSettingService.isCollegeSupervisor(userId, termId)
     }
 
 

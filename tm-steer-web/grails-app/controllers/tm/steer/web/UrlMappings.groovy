@@ -3,16 +3,24 @@ package tm.steer.web
 class UrlMappings {
 
     static mappings = {
+
         "/users"(resources: 'user', includes: []) {
-            "/schedules"(resources: 'schedule', includes: ['index'])
-            "/observations"(resources: 'observationForm', includes: ['index','show'])
-            "/reports"(resources: 'report', includes: ['index','show']){
+            "/observations"(resources: 'observationForm', includes: ['index','show']){
                 collection {
-                    "/observe-priority"(controller: 'report', action: 'observePriority', method: 'GET')
-                    "/reward"(controller: 'report', action: 'reward', method: 'GET')
+                    "/schedules"(resources: 'schedule', includes: ['index'])
+                    "/teachers"(controller: 'schedule', action: 'teacher', method: 'GET')
+                    "/places"(controller: 'schedule',  action: 'places', method: 'GET')
                 }
             }
         }
+
+        "/reports"(resources: 'report', includes: ['index','show']){
+            collection {
+                "/observe-priority"(controller: 'report', action: 'observePriority', method: 'GET')
+                "/reward"(controller: 'report', action: 'reward', method: 'GET')
+            }
+        }
+
         "/approvers"(resources: 'approval', includes: []){
             "/observations"(resources: 'approval', includes: ['index'])
         }

@@ -7,10 +7,10 @@ class ObserverCommand {
     Integer supervisorId
     String userId
     Integer termId
-    Integer roleType
+    Integer observerType
     String departmentId
     def tostring(){
-        return "supervisorId:${supervisorId},userId:${userId},termId:${termId},observerType:${roleType};departmentId:${departmentId}"
+        return "supervisorId:${supervisorId},userId:${userId},termId:${termId},observerType:${observerType};departmentId:${departmentId}"
     }
 
 }

@@ -6,9 +6,9 @@ class Observer {
     Teacher teacher
     Integer termId
     /**
-     * 角色类型：0-校领导；1-校督导；2-院督导；3-院领导；4-院教务；
+     * 角色类型：1-校督导；2-院督导；3-校领导；
      */
-    ObserverType observerType
+    Integer observerType
     Department department
     static mapping = {
         comment        '督导老师'

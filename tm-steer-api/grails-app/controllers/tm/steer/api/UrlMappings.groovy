@@ -3,33 +3,25 @@ package tm.steer.api
 class UrlMappings {
 
     static mappings = {
+        "/places"(resources: "placeTimeslot", includes: ['index', 'show'])
+
+        "/teachers"(resources: "teacher", includes: []) {
+            "/timeslots"(resources: "teacherTimeslot",includes: ['index', 'show'])
+        }
         "/users"(resources: 'user') {
-            "/schedules"(resources: "schedule", includes: ['show', 'create', 'save', 'update']) {
-                collection {
-                    "/findSchedule"(controller: 'schedule', action: 'findSchedule', method: 'GET')
-                    "/place"(controller: 'schedule', action: 'findPlace', method: 'GET')
-                    "/findTeacherSchedule"(controller: 'schedule', action: 'findTeacherSchedule', method: 'GET')
-                    "/findPlaceSchedule"(controller: 'schedule', action: 'findPlaceSchedule', method: 'GET')
-                    "/term"(controller: 'schedule', action: 'getTerm', method: 'GET')
-                    "/teacherActive"(controller: 'schedule', action: 'teacherActiveList', method: 'GET')
-                }
-            }
             "/observations"(resources: "observationForm"){
                 collection {
-                    "/cancel"(controller: 'observationForm', action: 'cancel', method: 'GET')
-                    "/submit"(controller: 'observationForm', action: 'submit', method: 'GET')
-                    "/feed"(controller: 'observationForm', action: 'feed', method: 'GET')
+                    "/term"(controller: 'schedule', action: 'getTerm', method: 'GET')
+                    "/observationPriority"(controller: 'schedule', action: 'teacherActiveList', method: 'GET')
                 }
             }
+        }
 
-            "/reports"(resources: "report"){
-                collection {
-                    "/groupByDepartment"(controller: 'report', action: 'departmentReport', method: 'GET')
-                    "/countByObserver"(controller: 'report', action: 'countByObserver', method: 'GET')
-                    "/teacherSupervised"(controller: 'report', action: 'teacherSupervisedReport', method: 'GET')
-                    "/reward"(controller: 'report', action: 'reward', method: 'GET')
-                    "/rewardDone"(controller: 'report', action: 'rewardDone', method: 'GET')
-                }
+        "/reports"(resources: "report"){
+            collection {
+                "/countBy"(controller: 'report', action: 'countBy', method: 'GET')
+                "/reward"(controller: 'report', action: 'reward', method: 'GET')
+                "/rewardDone"(controller: 'report', action: 'rewardDone', method: 'GET')
             }
         }
 

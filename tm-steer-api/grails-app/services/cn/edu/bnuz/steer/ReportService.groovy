@@ -32,7 +32,7 @@ where form.status > 0
 group by department.name
 ''', [termId: term.id, type: type]
         return [
-                isAdmin:observerSettingService.isAdmin(userId),
+                isAdmin:observerSettingService.isAdmin(),
                 list: result,
         ]
 
@@ -82,17 +82,9 @@ where ta.hasSupervisor is null
 order by ta.departmentName,teacherName
 '''
         return [
-                isAdmin:observerSettingService.isAdmin(userId),
+                isAdmin:observerSettingService.isAdmin(),
                 list: result,
         ]
-    }
-
-    def getSupervisorRole(String userId){
-        def term = termService.activeTerm
-        if(observerSettingService.isAdmin(userId)){
-            def adminSupervisor=messageSource.getMessage("main.supervisor.admin",null, Locale.CHINA)
-            return [adminSupervisor]
-        } else return observerSettingService.getSupervisorRole(userId, term.id)
     }
 
     def byTeacherForCollege(String userId) {

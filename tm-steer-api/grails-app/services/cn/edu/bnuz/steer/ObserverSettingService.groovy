@@ -14,23 +14,23 @@ class ObserverSettingService {
     UserLogService userLogService
 
     def save(ObserverCommand cmd) {
-        Observer supervisor=Observer.get(cmd.supervisorId)
-        if(supervisor){
-            supervisor.setObserverType(cmd.roleType)
-            supervisor.setTermId(cmd.termId)
+        Observer observer=Observer.get(cmd.supervisorId)
+        if(observer){
+            observer.setObserverType(cmd.observerType)
+            observer.setTermId(cmd.termId)
         }else{
             def teacher = Teacher.get(cmd.userId)
             if(!teacher)  throw new NotFoundException()
-            supervisor = Observer.findByTeacherAndTermIdAndObserverType(teacher,cmd.termId,ObserverType.load(cmd.roleType))
-            if(supervisor) return null
-            supervisor = new Observer(
+            observer = Observer.findByTeacherAndTermIdAndObserverType(teacher,cmd.termId,cmd.observerType)
+            if(observer) return null
+            observer = new Observer(
                     teacher: teacher,
                     department: teacher.department,
                     termId: cmd.termId,
-                    observerType: ObserverType.load(cmd.roleType)
+                    observerType: cmd.observerType
             )
         }
-        supervisor?.save(flush:true)
+        observer?.save(flush:true)
     }
 
     def list() {
@@ -43,78 +43,45 @@ select new Map(
   d.id as dId,
   d.name as dName,
   s.termId as termId,
-  r.name as roleType
+  s.observerType as observerType
 )
-from Observer s join s.teacher t join s.department d join s.observerType r
+from Observer s join s.teacher t join s.department d
 '''
     }
 
 
-    def roleTypes(){
-        ObserverType.executeQuery'''
-select new Map(
-  r.id as id,
-  r.name as name
-)
-from ObserverType r
-'''
-    }
-
-    def isCollegeSupervisor(String userId, Integer termId, String type){
+    def isCollegeSupervisor(String userId, Integer termId){
         def result=Observer.executeQuery '''
-select r.name
-from Observer s join s.teacher t,ObserverType r
-where s.observerType = r.id and s.termId = :termId and t.id = :userId
+select s.observerType
+from Observer s join s.teacher t
+where s.termId = :termId and t.id = :userId
 ''',[userId:userId, termId: termId]
-        return result ==[type]
+        return result ==[2]
     }
 
-    def isAdmin(String userId){
-        Observer supervisor=Observer.findByObserverType(ObserverType.load(0))
-        return supervisor?.teacher.id == userId
+    def isAdmin(){
+        return securityService.hasRole("ROLE_OBSERVATION_ADMIN")
     }
 
     def findRolesByUserIdAndTerm(String userId, Integer termId){
         Observer.executeQuery'''
-select distinct new map(
-role.id as id,
-role.name as name
-)
-from Observer s, ObserverType role
-where s.observerType = role.id and s.teacher.id = :userId and s.termId = :termId
+select distinct s.observerType
+from Observer s
+where s.teacher.id = :userId and s.termId = :termId
 ''',[userId: userId,termId: termId]
     }
 
-    def findAllRoles(){
-        ObserverType.executeQuery'''
-select new map(
-role.id as id,
-role.name as name
-)
-from ObserverType role
-'''
-    }
-
-    def findCurrentSupervisors(Integer termId){
+    def findCurrentObservers(Integer termId){
         def result= Observer.executeQuery'''
 select distinct new map(
 t.id as teacherId,
 t.name as teacherName,
-role.id as roleId,
-role.name as roleName
+s.observerType as observerType
 )
-from Observer s join s.teacher t, ObserverType role
-where s.observerType = role.id and s.termId = :termId
+from Observer s join s.teacher t
+where s.termId = :termId
 ''',[termId: termId]
-        return result.groupBy {it.roleId}.entrySet()
-    }
-
-    def getSupervisorRole(String userId, Integer termId){
-        Observer.executeQuery '''
-select r.name
-from Observer s join s.teacher t,ObserverType r
-where s.observerType = r.id and s.termId = :termId and t.id = :userId
-''',[userId:userId, termId: termId]
+        return result.groupBy {it.observerType}.entrySet()
     }
 
     def getTerms(){

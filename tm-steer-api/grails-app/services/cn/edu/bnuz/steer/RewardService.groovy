@@ -11,7 +11,7 @@ class RewardService {
     def messageSource
     def list(String userId, String month){
         def term = termService.activeTerm
-        if(!observerSettingService.isAdmin(userId)) {
+        if(!observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
         def supervisor=messageSource.getMessage("main.supervisor.university",null, Locale.CHINA)
@@ -66,7 +66,7 @@ order by substring(form.supervisorDate,6,2)
 
     def done(String userId, String month){
         def term = termService.activeTerm
-        if(!observerSettingService.isAdmin(userId)) {
+        if(!observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
         def type=messageSource.getMessage("main.supervisor.university",null, Locale.CHINA)

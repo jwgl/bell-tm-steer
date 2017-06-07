@@ -5,7 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 本学期督导听课记录
  */
-@PreAuthorize('hasAuthority("PERM_SUPERVISOR_WRITE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVATION_WRITE")')
 class ObservationFormController {
     ObservationFormService observationFormService
 

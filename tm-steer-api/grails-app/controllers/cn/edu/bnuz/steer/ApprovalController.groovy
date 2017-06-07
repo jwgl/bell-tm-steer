@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 教学院长发布学院督导听课
  */
-@PreAuthorize('hasAuthority("PERM_CO_SUPERVISOR_APPROVE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVATION_DEPT_APPROVE")')
 class ApprovalController {
     ApprovalService approvalService
     TermService termService
@@ -23,21 +23,21 @@ class ApprovalController {
     }
 
     def show(String approverId, Long id){
-        renderJson(approvalService.getFormForShow(securityService.userId, id))
+        renderJson(approvalService.getFormForShow(id))
     }
 
     def update(String approverId, Long id) {
         def cmd = new FeedItems()
         bindData(cmd, request.JSON)
         cmd?.ids?.each { item->
-            approvalService.feed(securityService.userId, item)
+            approvalService.feed(item)
         }
         renderOk()
     }
 
     def feed(String approverId){
         Integer id = params.getInt('id')
-        approvalService.feed(securityService.userId, id)
+        approvalService.feed(id)
         renderJson([ok:true])
     }
 

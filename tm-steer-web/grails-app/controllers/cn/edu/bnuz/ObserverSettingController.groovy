@@ -5,7 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 督导员设置
  */
-@PreAuthorize('hasAuthority("PERM_ADMIN_SUPERVISOR_WRITE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVER_ADMIN")')
 class ObserverSettingController {
 
     def index() { }

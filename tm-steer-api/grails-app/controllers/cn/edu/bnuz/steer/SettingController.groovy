@@ -7,7 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 督导员管理
  */
-@PreAuthorize('hasAuthority("PERM_ADMIN_SUPERVISOR_WRITE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVER_ADMIN")')
 class SettingController {
     ObserverSettingService observerSettingService
     DepartmentService departmentService
@@ -35,7 +35,6 @@ class SettingController {
      */
     def create(){
         renderJson(
-                roles: observerSettingService.roleTypes(),
                 departments: departmentService.teachingDepartments,
                 activeTerm: termService.activeTerm?.id,
                 terms: observerSettingService.terms

@@ -8,7 +8,7 @@ class ObservationForm {
     Teacher teacher
     Teacher observer
     TaskSchedule taskSchedule
-    ObserverType observerType
+    Integer observerType
     /**
      * 记录状态：0-未提交；1-提交；2-发布；
      */

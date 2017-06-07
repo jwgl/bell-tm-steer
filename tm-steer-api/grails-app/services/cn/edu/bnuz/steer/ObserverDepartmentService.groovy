@@ -9,7 +9,7 @@ class ObserverDepartmentService {
     TermService termService
     def messageSource
 
-    def list(String departmentId, String type) {
+    def list(String departmentId) {
         Observer.executeQuery '''
 select new Map(
   s.id as id,
@@ -19,11 +19,11 @@ select new Map(
   d.id as dId,
   d.name as dName,
   s.termId as termId,
-  r.name as roleType
+  s.observerType as observerType
 )
-from Observer s join s.teacher t join s.department d join s.observerType r
-where d.id = :departmentId and r.name = :type
-''',[departmentId:departmentId, type: type]
+from Observer s join s.teacher t join s.department d
+where d.id = :departmentId and s.observerType = 2
+''',[departmentId:departmentId]
     }
 
     def findTeacher(String query, String departmentId) {
@@ -42,8 +42,6 @@ and (t.id like :query or t.name like :query)
 
     def countByObserver(String departmentId) {
         def term = termService.activeTerm
-
-        def type =messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
         def result =ObservationForm.executeQuery '''
 select new map(
   observer.name as observer,
@@ -53,16 +51,15 @@ select new map(
 from ObservationForm form
 join form.observer observer
 join form.taskSchedule schedule
-join form.observerType observerType
 join schedule.task task
 join task.courseClass courseClass
 join observer.department department
 where form.status > 0
-  and observerType.name = :type
+  and form.observerType = 2
   and courseClass.term.id = :termId
   and department.id = :departmentId
 group by observer
-''', [termId: term.id, type: type, departmentId: departmentId]
+''', [termId: term.id, departmentId: departmentId]
         return [
                 list: result,
         ]
