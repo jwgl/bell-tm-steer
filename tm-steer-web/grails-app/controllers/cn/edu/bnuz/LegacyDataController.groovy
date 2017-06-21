@@ -16,7 +16,7 @@ class LegacyDataController {
     def show(Long id){
         ReportResponse reportResponse = reportClientService.runAndRender(new ReportRequest(
                 reportService: 'tm-report',
-                reportName: 'legacy_view',
+                reportName: 'steer-legacy-detail',
                 format: 'pdf',
                 parameters: [formId: id]
         ))

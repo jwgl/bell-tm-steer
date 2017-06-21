@@ -14,8 +14,7 @@ class ScheduleService {
     TermService termService
     DepartmentService departmentService
     ObserverSettingService observerSettingService
-    ObservationCriteriaService observationCriteriaService
-    def messageSource
+
     def getFormForCreate(String userId) {
         def term = termService.activeTerm
         return [
@@ -117,46 +116,16 @@ where courseClass.term.id = :termId
 
     }
 
-    def getSchedule(String userId, String id){
-        def result = getScheduleById(id)
-        def term = termService.activeTerm
-        def isAdmin = observerSettingService.isAdmin()
-        def type = isAdmin? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(userId,term.id)
 
-        return [
-                term        : [
-                        startWeek  : term.startWeek,
-                        maxWeek    : term.maxWeek,
-                        currentWeek: term.currentWorkWeek,
-                        startDate  : term.startDate,
-                        swapDates  : term.swapDates,
-                        endWeek    : term.endWeek,
-                ],
-                schedule    : result,
-                type        : type,
-                evaluationSystem    : observationCriteriaService.observationCriteria,
-                isAdmin             : isAdmin,
-                supervisors         : isAdmin? observerSettingService.findCurrentObservers(term.id):null
-        ]
-    }
-
-    def showSchedule(String id){
-        def result = getScheduleById(id)
-        if(result)
-            return [
-                    schedule    : result[0],
-                    evaluationSystem    :observationCriteriaService.observationCriteria
-            ]
-        else return null;
-    }
-
-    List getPlaceSchedules(String placeId, Integer termId, Integer weekOfTerm) {
+    List getPlaceSchedules(String placeId, Integer termId) {
         TaskSchedule.executeQuery '''
 select new map(
   schedule.id as id,
   courseClass.name as courseClassName,
   scheduleTeacher.id as teacherId,
   scheduleTeacher.name as teacherName,
+  scheduleTeacher.academicTitle as academicTitle,
+  department.name as department,
   schedule.startWeek as startWeek,
   schedule.endWeek as endWeek,
   schedule.oddEven as oddEven,
@@ -171,57 +140,23 @@ from TaskSchedule schedule
 join schedule.task task
 join task.courseClass courseClass
 join courseClass.course course
+join courseClass.department department
 join schedule.teacher scheduleTeacher
 left join schedule.place place
 where place.id = :placeId
   and courseClass.term.id = :termId
-  and schedule.startWeek <= :weekOfTerm
-  and schedule.endWeek >= :weekOfTerm
-''', [placeId: placeId, termId: termId, weekOfTerm: weekOfTerm]
+''', [placeId: placeId, termId: termId]
     }
 
-    List getTeacherSchedules(String teacherId, Integer termId, Integer week) {
+    List getTeacherSchedules(String teacherId, Integer termId) {
         TaskSchedule.executeQuery '''
 select new map(
   schedule.id as id,
   courseClass.name as courseClassName,
   scheduleTeacher.id as teacherId,
   scheduleTeacher.name as teacherName,
-  schedule.startWeek as startWeek,
-  schedule.endWeek as endWeek,
-  schedule.oddEven as oddEven,
-  schedule.dayOfWeek as dayOfWeek,
-  schedule.startSection as startSection,
-  schedule.totalSection as totalSection,
-  course.name as course,
-  place.name as place,
-  (select superviseCount from ObservationCount where teacherId = scheduleTeacher.id) as superviseCount
-)
-from ObservationForm form
-right join form.taskSchedule schedule
-join schedule.task task
-join task.courseClass courseClass
-join courseClass.course course
-join schedule.teacher scheduleTeacher
-left join schedule.place place
-where scheduleTeacher.id = :teacherId
-  and courseClass.term.id = :termId
-  and :week between schedule.startWeek and schedule.endWeek
-  and (schedule.oddEven = 0
-   or schedule.oddEven = 1 and :week % 2 = 1
-   or schedule.oddEven = 2 and :week % 2 = 0)
-''', [teacherId: teacherId, termId: termId, week: week]
-    }
-
-    private getScheduleById(String id){
-        TaskSchedule.executeQuery '''
-select new map(
-  schedule.id as id,
-  department.name as department,
   scheduleTeacher.academicTitle as academicTitle,
-  courseClass.name as courseClassName,
-  scheduleTeacher.id as teacherId,
-  scheduleTeacher.name as teacherName,
+  department.name as department,
   schedule.startWeek as startWeek,
   schedule.endWeek as endWeek,
   schedule.oddEven as oddEven,
@@ -229,22 +164,21 @@ select new map(
   schedule.startSection as startSection,
   schedule.totalSection as totalSection,
   course.name as course,
-  course.credit as credit,
-  property.name as property,
   place.name as place,
-  (select count(*) from TaskStudent tst where tst.task = task) as studentCount
+  courseItem.name as courseItem,
+  (select superviseCount from ObservationCount where teacherId = scheduleTeacher.id) as superviseCount
 )
 from TaskSchedule schedule
 join schedule.task task
 join task.courseClass courseClass
 join courseClass.course course
-join courseClass.teacher courseTeacher
 join courseClass.department department
 join schedule.teacher scheduleTeacher
-join course.property property
 left join schedule.place place
-where schedule.id = :id
-''',[id:UUID.fromString(id)]
+left join task.courseItem courseItem
+where scheduleTeacher.id = :teacherId
+  and courseClass.term.id = :termId
+''', [teacherId: teacherId, termId: termId]
     }
 
     boolean isCollegeSupervisor(String userId, Integer termId){

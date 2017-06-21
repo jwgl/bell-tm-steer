@@ -7,14 +7,14 @@ class PlaceTimeslotController {
     ScheduleService scheduleService
     TermService termService
     def index() {
+        String building = params.building
         String q = params.q
-        renderJson(scheduleService.findPlace(null, q))
+        renderJson(scheduleService.findPlace(building, q))
     }
 
     def show(String id){
         println id
-        Integer weekOfTerm = params.getInt('weekOfTerm')?:0
         def term =termService.activeTerm
-        renderJson(scheduleService.getPlaceSchedules(id,term.id,weekOfTerm))
+        renderJson(scheduleService.getPlaceSchedules(id, term.id))
     }
 }

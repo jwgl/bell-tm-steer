@@ -9,46 +9,40 @@ class RewardService {
     TermService termService
     ObserverSettingService observerSettingService
     def messageSource
-    def list(String userId, String month){
+    def list(String month){
         def term = termService.activeTerm
         if(!observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
-        def supervisor=messageSource.getMessage("main.supervisor.university",null, Locale.CHINA)
-        ObservationForm.executeQuery '''
+        ObservationView.executeQuery '''
 select new map(
-  form.id as id,
-  form.supervisorDate as supervisorDate,
-  form.status as status,
-  observer.id as supervisorId,
-  observer.name as supervisorName,
-  observerType.name as typeName,
-  schedule.id as scheduleId,
-  department.name as department,
-  scheduleTeacher.id as teacherId,
-  scheduleTeacher.name as teacherName,
-  schedule.dayOfWeek as dayOfWeek,
-  schedule.startSection as startSection,
-  schedule.totalSection as totalSection,
-  course.name as course,
-  courseClass.term.id as termId
+  view.id as id,
+  view.supervisorDate as supervisorDate,
+  view.evaluateLevel as evaluateLevel,
+  view.status as status,
+  view.supervisorId as supervisorId,
+  view.supervisorName as supervisorName,
+  view.observerType as observerType,
+  view.courseClassName as courseClassName,
+  view.departmentName as departmentName,
+  view.teacherId as teacherId,
+  view.teacherName as teacherName,
+  view.dayOfWeek as dayOfWeek,
+  view.startSection as startSection,
+  view.totalSection as totalSection,
+  view.courseName as course,
+  view.placeName as place,
+  view.termId as termId,
+  view.formTotalSection as observesCount
 )
-from ObservationForm form
-join form.observer observer
-join form.taskSchedule schedule
-join form.observerType observerType
-join schedule.task task
-join task.courseClass courseClass
-join courseClass.course course
-join courseClass.department department
-join schedule.teacher scheduleTeacher
-where courseClass.term.id = :termId
-and form.status>0
-and form.supervisorDate like :date
-and observerType.name = :role
-and form.rewardDate is null
-order by form.supervisorDate
-''', [ termId: term.id, date:"%-${month}-%", role:supervisor]
+from ObservationView view
+where view.termId = :termId
+and view.status>0
+and view.supervisorDate like :date
+and view.observerType = :type
+and view.rewardDate is null
+order by view.supervisorDate
+''', [ termId: term.id, date:"%-${month}-%", type:1]
     }
 
     def getMonthes(){
@@ -56,29 +50,25 @@ order by form.supervisorDate
         ObservationForm.executeQuery '''
 select distinct substring(form.supervisorDate,6,2)
 from ObservationForm form
-join form.taskSchedule schedule
-join schedule.task task
-join task.courseClass courseClass
-where courseClass.term.id = :termId
+where form.termId = :termId
 order by substring(form.supervisorDate,6,2)
 ''', [ termId: term.id]
     }
 
-    def done(String userId, String month){
+    def done(String month){
         def term = termService.activeTerm
         if(!observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
-        def type=messageSource.getMessage("main.supervisor.university",null, Locale.CHINA)
         ObservationForm.executeUpdate'''
 update ObservationForm f
 set f.rewardDate = now()
 where id in(
 select v.id from ObservationView v
-where v.termid = :termId and v.status > 0
+where v.termId = :termId and v.status > 0
 and substring(v.supervisorDate,6,2) = :month
-and v.typeName = :type
+and v.observerType = 1
 )
-''',[termId: term.id, month: month, type: type]
+''',[termId: term.id, month: month]
     }
 }

@@ -14,7 +14,7 @@ import grails.transaction.Transactional
 @Transactional
 class ObservationFormService {
     TermService termService
-    ScheduleService scheduleService
+    TimeslotService timeslotService
     ObserverSettingService observerSettingService
     ObservationCriteriaService observationCriteriaService
     UserLogService userLogService
@@ -23,10 +23,10 @@ class ObservationFormService {
     ObservationForm create(String userId, ObservationFormCommand cmd){
         //防止重复录入
         ObservationForm form =
-                ObservationForm.findByObserverAndSupervisorDateAndTaskSchedule(
+                ObservationForm.findByObserverAndSupervisorDateAndPlace(
                         Teacher.load(userId),
                         cmd.supervisorDate,
-                        TaskSchedule.load(cmd.scheduleId)
+                        cmd.place
                 )
         if(form) {
             throw new BadRequestException()
@@ -39,7 +39,8 @@ class ObservationFormService {
         form = new ObservationForm(
                 observer: isAdmin?Teacher.load(cmd.supervisorId):Teacher.load(userId),
                 teacher: Teacher.load(cmd.teacherId),
-                taskSchedule: TaskSchedule.load(cmd.scheduleId),
+                dayOfWeek: cmd.dayOfWeek,
+                startSection: cmd.startSection,
                 lectureWeek: cmd.supervisorWeek,
                 totalSection: cmd.totalSection,
                 teachingMethods: cmd.teachingMethods,
@@ -118,38 +119,29 @@ class ObservationFormService {
     def list(String userId, Integer termId){
         def term = termService.activeTerm
         def isAdmin = observerSettingService.isAdmin()
-        def result = ObservationForm.executeQuery '''
+        def result = ObservationView.executeQuery '''
 select new map(
-  form.id as id,
-  form.supervisorDate as supervisorDate,
-  form.evaluateLevel as evaluateLevel,
-  form.status as status,
-  observer.id as supervisorId,
-  observer.name as supervisorName,
-  form.observerType as observerType,
-  schedule.id as scheduleId,
-  courseClass.name as courseClassName,
-  department.name as department,
-  scheduleTeacher.id as teacherId,
-  scheduleTeacher.name as teacherName,
-  schedule.dayOfWeek as dayOfWeek,
-  schedule.startSection as startSection,
-  schedule.totalSection as totalSection,
-  course.name as course,
-  place.name as place
+  view.id as id,
+  view.supervisorDate as supervisorDate,
+  view.evaluateLevel as evaluateLevel,
+  view.status as status,
+  view.supervisorId as supervisorId,
+  view.supervisorName as supervisorName,
+  view.observerType as observerType,
+  view.courseClassName as courseClassName,
+  view.departmentName as departmentName,
+  view.teacherId as teacherId,
+  view.teacherName as teacherName,
+  view.dayOfWeek as dayOfWeek,
+  view.startSection as startSection,
+  view.totalSection as totalSection,
+  view.courseName as course,
+  view.placeName as place
 )
-from ObservationForm form
-join form.observer observer
-join form.taskSchedule schedule
-join schedule.task task
-join task.courseClass courseClass
-join courseClass.course course
-join courseClass.department department
-join schedule.teacher scheduleTeacher
-left join schedule.place place
-where observer.id like :userId
-  and courseClass.term.id = :termId
-order by form.supervisorDate
+from ObservationView view
+where view.supervisorId like :userId
+  and view.termId = :termId
+order by view.supervisorDate
 ''', [userId: isAdmin?'%':userId, termId: termId?:term.id]
         return [isAdmin : isAdmin,
                 list: result,
@@ -167,7 +159,24 @@ order by form.supervisorDate
                 throw new BadRequestException()
             }
 
-            def schedule = scheduleService.getSchedule(userId, form.taskSchedule.id.toString())
+            def term = termService.activeTerm
+            def isAdmin = observerSettingService.isAdmin()
+            def type = isAdmin? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(userId,term.id)
+            def schedule = [
+                    term : [
+                            startWeek  : term.startWeek,
+                            maxWeek    : term.maxWeek,
+                            currentWeek: term.currentWorkWeek,
+                            startDate  : term.startDate,
+                            swapDates  : term.swapDates,
+                            endWeek    : term.endWeek,
+                    ],
+                    timeslot: getFormTimeslot(term.id, form),
+                    type        : type,
+                    evaluationSystem    : observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
+                    isAdmin             : isAdmin,
+                    supervisors         : isAdmin? observerSettingService.findCurrentObservers(term.id):null
+            ]
             schedule.form = getFormInfo(form)
             schedule.evaluationSystem.each { group ->
                 group.value.each { item ->
@@ -186,15 +195,12 @@ order by form.supervisorDate
             if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
-            def result = scheduleService.getScheduleById(form.taskSchedule.id.toString())
-            if( !result){
-                throw new BadRequestException()
-            }
-            def schedule =[
-                    schedule: result[0],
-                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id)
-            ]
-            schedule.form = getFormInfo(form)
+
+            def schedule = [
+                    schedule: getFormTimeslot(termService.activeTerm.id,form)[0],
+                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
+                    form: getFormInfo(form)
+                    ]
             schedule.evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
@@ -270,7 +276,6 @@ order by form.supervisorDate
     Map getFormInfo(ObservationForm form) {
         return [
                 id: form.id,
-                scheduleId: form.taskSchedule.id,
                 teacherId: form.teacher.id,
                 supervisorId: form.observer.id,
                 supervisorName: form.observer.name,
@@ -278,7 +283,7 @@ order by form.supervisorDate
                 totalSection: form.totalSection,
                 teachingMethods: form.teachingMethods,
                 supervisorDate: form.supervisorDate,
-                observerType: form.observerType,
+                type: form.observerType,
                 place: form.place,
                 earlier: form.earlier,
                 late: form.late,
@@ -298,6 +303,20 @@ order by form.supervisorDate
 
     private cantUpdate(ObservationForm form){
         return form.status
+    }
+
+    def getFormTimeslot(Integer termId, ObservationForm form){
+        TeacherTimeslotCommand cmd = new TeacherTimeslotCommand(
+                termId      : termId,
+                teacherId   : form.teacher.id,
+                week        : form.lectureWeek,
+                timeslot    : form.dayOfWeek * 100 + form.startSection,
+        )
+        def result = timeslotService.timeslot(cmd)
+        if( !result){
+            throw new BadRequestException()
+        }
+        return result
     }
 
 }

@@ -119,7 +119,7 @@ environments:
 
 ---
 server:
-    port: 51420
+    port: 22810
 
 spring:
     application:

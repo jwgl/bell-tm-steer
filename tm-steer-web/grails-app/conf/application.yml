@@ -90,7 +90,7 @@ endpoints:
 
 ---
 server:
-    port: 51440
+    port: 22800
 
 spring:
     application:

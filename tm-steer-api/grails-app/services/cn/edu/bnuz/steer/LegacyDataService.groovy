@@ -24,10 +24,10 @@ order by l.listentime desc
 
     def types(Integer termId){
         ObservationLegacyForm.executeQuery'''
-select l.type
+select l.observerType
 from ObservationLegacyForm l
 where l.termId=:termId
-group by l.type
+group by l.observerType
 ''',[termId: termId]
     }
 }

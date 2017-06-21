@@ -26,6 +26,8 @@ class ObservationFormCommand {
     String                  suggest
     Integer                 status
     String                  supervisorId
+    Integer                 dayOfWeek
+    Integer                 startSection
 
     class EvaluationsItem {
         Integer id
@@ -50,7 +52,9 @@ class ObservationFormCommand {
     "${evaluationText},"+
     "${suggest},"+
     "${status},"+
-    "${supervisorId}"
+    "${supervisorId},"+
+    "${dayOfWeek},"+
+    "${startSection}"
 
     }
 }

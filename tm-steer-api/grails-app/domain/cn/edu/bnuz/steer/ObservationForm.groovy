@@ -1,20 +1,24 @@
 package cn.edu.bnuz.steer
 
-import cn.edu.bnuz.bell.operation.TaskSchedule
 import cn.edu.bnuz.bell.organization.Teacher
 
 class ObservationForm {
 
     Teacher teacher
     Teacher observer
-    TaskSchedule taskSchedule
     Integer observerType
     /**
      * 记录状态：0-未提交；1-提交；2-发布；
      */
     Integer status
     Date    recordDate
+    /**
+     * timeslot:周、星期几、开始节
+     */
     Integer lectureWeek
+    Integer dayOfWeek
+    Integer startSection
+
     String  supervisorDate
     Integer totalSection
     String  evaluationText
@@ -42,11 +46,12 @@ class ObservationForm {
         id                  generator: 'identity', comment: 'ID'
         teacher             comment: '上课老师'
         observer            comment: '听课老师'
-        taskSchedule        comment: '被听的课程'
         observerType        comment: '督导类型'
         status              defaultValue: "0",comment: '状态'
         recordDate          comment: '录入日期'
         lectureWeek         comment:'上课周'
+        dayOfWeek           comment:'星期几'
+        startSection        comment:'起始节'
         supervisorDate      comment:'听课日期'
         teachingMethods     comment:'教学形式'
         totalSection        comment: '听课节数'
@@ -90,5 +95,7 @@ class ObservationForm {
         updateDate          nullable: true
         updateOperator      nullable: true
         observationCriteria nullable: true
+        dayOfWeek           nullable: true
+        startSection        nullable: true
     }
 }

@@ -8,7 +8,7 @@ class TimeslotService {
 
     def timeslot(TeacherTimeslotCommand cmd){
         TaskSchedule.executeQuery '''
-select new map(
+select distinct new map(
   schedule.id as id,
   department.name as department,
   scheduleTeacher.academicTitle as academicTitle,

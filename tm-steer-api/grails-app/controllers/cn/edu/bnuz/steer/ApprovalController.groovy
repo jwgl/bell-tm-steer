@@ -1,6 +1,5 @@
 package cn.edu.bnuz.steer
 
-import cn.edu.bnuz.bell.master.Term
 import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
@@ -16,10 +15,11 @@ class ApprovalController {
 
     def index(String approverId) {
         Integer termId = params.getInt('termId')
+        println termId
         termId = termId?:termService.activeTerm.id
-        renderJson([term: Term.all,
-                    activeTermId: termId,
-                    list:approvalService.list(securityService.userId, termId)])
+        println termId
+        Integer status = params.getInt('status')
+        renderJson(approvalService.list(termId, status?:1))
     }
 
     def show(String approverId, Long id){
@@ -35,13 +35,8 @@ class ApprovalController {
         renderOk()
     }
 
-    def feed(String approverId){
-        Integer id = params.getInt('id')
-        approvalService.feed(id)
-        renderJson([ok:true])
-    }
-
     class FeedItems{
         List<Integer> ids
     }
+
 }

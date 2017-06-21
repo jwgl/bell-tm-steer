@@ -12,9 +12,8 @@ class TeacherTimeslotController {
     ObservationCriteriaService observationCriteriaService
 
     def index(String teacherId) {
-        Integer week = params.getInt('weekOfTerm')?:0
         def term =termService.activeTerm
-        def schedules = scheduleService.getTeacherSchedules(teacherId, term.id, week)
+        def schedules = scheduleService.getTeacherSchedules(teacherId, term.id)
         renderJson([schedules: schedules])
     }
 
@@ -30,7 +29,6 @@ class TeacherTimeslotController {
         def isAdmin = observerSettingService.isAdmin()
         def type = isAdmin? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
         def timeslot =timeslotService.timeslot(cmd)
-        if(timeslot) println timeslot[0].department
         renderJson(
             [
                 term : [
@@ -41,7 +39,7 @@ class TeacherTimeslotController {
                         swapDates  : term.swapDates,
                         endWeek    : term.endWeek,
                 ],
-                schedule    : timeslot,
+                timeslot    : timeslot,
                 type        : type,
                 evaluationSystem    : observationCriteriaService.observationCriteria,
                 isAdmin             : isAdmin,

@@ -8,7 +8,8 @@ import cn.edu.bnuz.bell.http.ForbiddenException
 @Transactional
 class PublicService {
     TermService termService
-    ScheduleService scheduleService
+    ObservationCriteriaService observationCriteriaService
+    ObservationFormService observationFormService
 
     def list(String userId){
         ObservationPublic.executeQuery '''
@@ -17,13 +18,16 @@ select new map(
   form.isLegacy as isLegacy,
   form.supervisorDate as supervisorDate,
   form.evaluateLevel as evaluateLevel,
-  form.typeName as typeName,
+  form.observerType as observerType,
   form.termId as termId,
-  form.departmentName as department,
+  form.departmentName as departmentName,
   form.teacherId as teacherId,
   form.teacherName as teacherName,
   form.courseName as course,
-  form.courseOtherInfo as courseOtherInfo
+  form.placeName as place,
+  form.dayOfWeek as dayOfWeek,
+  form.startSection as startSection,
+  form.totalSection as totalSection
 )
 from ObservationPublic form
 where form.teacherId = :userId
@@ -38,8 +42,12 @@ order by form.supervisorDate
             if(form.teacher.id !=userId){
                 throw new BadRequestException()
             }
-            def schedule = scheduleService.showSchedule(form.taskSchedule.id.toString())
-            schedule.form = getFormInfo(form)
+            def schedule = [
+                    schedule: observationFormService.getFormTimeslot(termService.activeTerm.id,form)[0],
+                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
+                    form: getFormInfo(form)
+            ]
+            println "herer"
             schedule.evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
@@ -53,14 +61,13 @@ order by form.supervisorDate
     Map getFormInfo(ObservationForm form) {
         return [
                 id: form.id,
-                scheduleId: form.taskSchedule.id,
                 teacherId: form.teacher.id,
+                supervisorName: form.observer.name,
                 supervisorWeek: form.lectureWeek,
                 totalSection: form.totalSection,
                 teachingMethods: form.teachingMethods,
                 supervisorDate: form.supervisorDate,
-                type: form.observerType.id,
-                typeName: form.observerType.name,
+                type: form.observerType,
                 place: form.place,
                 earlier: form.earlier,
                 late: form.late,

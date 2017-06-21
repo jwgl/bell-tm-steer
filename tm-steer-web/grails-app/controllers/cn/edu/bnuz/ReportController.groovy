@@ -13,12 +13,12 @@ import org.springframework.security.access.prepost.PreAuthorize
 class ReportController {
     ReportClientService reportClientService
     SecurityService securityService
-    def index() { }
+    def index(String userId) { }
 
     def show(String userId, Long id) {
         report(new ReportRequest(
                 reportService: 'tm-report',
-                reportName: 'observation_view',
+                reportName: 'steer-observation-detail',
                 format: 'pdf',
                 parameters: [idKey:'formId', formId: id, userId: securityService.userId]
         ))
@@ -28,7 +28,7 @@ class ReportController {
     def observePriority() {
         report(new ReportRequest(
                 reportService: 'tm-report',
-                reportName: 'observe-priority-list',
+                reportName: 'steer-observe-priority-list',
                 format: 'xlsx'
         ))
     }
@@ -36,10 +36,10 @@ class ReportController {
     def reward(){
         String month = params.month
         if(!month) throw new BadRequestException()
-        if(securityService.hasRole('ROLE_SUPERVISOR_ADMIN')){
+        if(securityService.hasRole('ROLE_OBSERVATION_ADMIN')){
             report(new ReportRequest(
                     reportService: 'tm-report',
-                    reportName: 'reward-report',
+                    reportName: 'steer-reward-list',
                     format: 'xlsx',
                     parameters: [month: month]
             ))

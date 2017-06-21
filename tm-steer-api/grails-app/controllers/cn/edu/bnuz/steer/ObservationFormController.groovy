@@ -1,5 +1,7 @@
 package cn.edu.bnuz.steer
 
+import cn.edu.bnuz.bell.workflow.Event
+import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import org.springframework.security.access.prepost.PreAuthorize
 
 /**
@@ -12,6 +14,14 @@ class ObservationFormController {
     def index(String userId) {
         Integer termId = params.getInt('termId')?:0
         renderJson(observationFormService.list(userId, termId))
+    }
+
+    def save(String userId) {
+        def cmd = new ObservationFormCommand()
+        bindData(cmd, request.JSON)
+        println cmd.tostring()
+        def form = observationFormService.create(userId, cmd)
+        renderJson([id: form.id])
     }
 
     def edit(String userId, Long id) {
@@ -31,26 +41,29 @@ class ObservationFormController {
         renderOk()
     }
 
-    def cancel(String userId){
-        Integer id = params.getInt('id')
-        observationFormService.cancel(userId, id)
-        renderJson([ok:true])
-    }
-
-    def submit(String userId){
-        Integer id = params.getInt('id')
-        observationFormService.submit(userId, id)
-        renderJson([ok:true])
-    }
 
     def delete(String userId, Long id){
         observationFormService.delete(userId, id)
         renderOk()
     }
 
-    def feed(String userId){
-        Integer id = params.getInt('id')
-        observationFormService.feed(userId, id)
+
+    def patch(String userId, Long id, String op) {
+        def operation = Event.valueOf(op)
+        switch (operation) {
+            case Event.SUBMIT:
+                def cmd = new SubmitCommand()
+                bindData(cmd, request.JSON)
+                cmd.id = id
+                observationFormService.submit(userId, id)
+                break
+            case Event.FINISH:
+                observationFormService.feed(userId, id)
+                break
+            case Event.CANCEL:
+                observationFormService.cancel(userId, id)
+                break
+        }
         renderJson([ok:true])
     }
 

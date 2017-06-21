@@ -1,15 +1,19 @@
 package cn.edu.bnuz.steer
 
 class ObservationView {
-    String teacherId
-    String teacherName
-    String supervisorId
-    String supervisorName
+    Long    id
+    String  teacherId
+    String  teacherName
+    String  supervisorId
+    String  supervisorName
     Integer status
     Date    recordDate
     Integer lectureWeek
     String  supervisorDate
+    Integer dayOfWeek
+    Integer startSection
     Integer totalSection
+    Integer formTotalSection
     String  evaluationText
     String  teachingMethods
     String  suggest
@@ -24,10 +28,11 @@ class ObservationView {
     Integer attendantStds
     Integer leaveStds
     String  operator
-    String  typeName
+    Integer observerType
     String  courseClassName
     String  departmentName
-    Integer termid
+    String  courseName
+    Integer termId
 
 
     static mapping = {

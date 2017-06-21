@@ -8,6 +8,9 @@ class UrlMappings {
         "/teachers"(resources: "teacher", includes: []) {
             "/timeslots"(resources: "teacherTimeslot",includes: ['index', 'show'])
         }
+
+        "/schedules"(resources: "schedule")
+
         "/users"(resources: 'user') {
             "/observations"(resources: "observationForm"){
                 collection {
@@ -19,7 +22,6 @@ class UrlMappings {
 
         "/reports"(resources: "report"){
             collection {
-                "/countBy"(controller: 'report', action: 'countBy', method: 'GET')
                 "/reward"(controller: 'report', action: 'reward', method: 'GET')
                 "/rewardDone"(controller: 'report', action: 'rewardDone', method: 'GET')
             }
@@ -27,9 +29,6 @@ class UrlMappings {
 
         "/approvers"(resources: "approval",include: []){
             "/observations"(resources: "approval")
-            collection {
-                "/feed"(controller: 'approval', action: 'feed', method: 'GET')
-            }
         }
 
         "/publics"(resources: "public"){

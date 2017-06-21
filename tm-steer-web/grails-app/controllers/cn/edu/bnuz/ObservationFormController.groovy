@@ -17,7 +17,7 @@ class ObservationFormController {
         if(securityService.hasRole("ROLE_SUPERVISOR_ADMIN") || !id ){
             report(new ReportRequest(
                     reportService: 'tm-report',
-                    reportName: 'observations-all',
+                    reportName: 'steer-observations-all',
                     format: 'xlsx',
                     parameters: [termId: id]
             ))

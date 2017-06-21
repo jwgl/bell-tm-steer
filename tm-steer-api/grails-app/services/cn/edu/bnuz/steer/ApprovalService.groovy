@@ -2,58 +2,68 @@ package cn.edu.bnuz.steer
 
 import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.master.Term
+import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import grails.transaction.Transactional
 
 @Transactional
 class ApprovalService {
-    ScheduleService scheduleService
+    TermService termService
+    ObservationCriteriaService observationCriteriaService
+    ObservationFormService observationFormService
     ObserverSettingService observerSettingService
     SecurityService securityService
 
-    def list(String userId, Integer termId){
-        def me = Teacher.load(userId)
-        if (!me) return null
+    def list(Integer termId, Integer status){
         def isAdmin = observerSettingService.isAdmin()
-        def dept=isAdmin? "%" : me.department.name
+        def dept=isAdmin? "%" : Teacher.load(securityService.userId).department.name
         def type= isAdmin? 1 : 2
-        ObservationForm.executeQuery '''
+        def result = ObservationView.executeQuery '''
 select new map(
-  form.id as id,
-  form.supervisorDate as supervisorDate,
-  form.evaluateLevel as evaluateLevel,
-  form.status as status,
-  form.observerType as observerType,
-  schedule.id as scheduleId,
-  courseClass.name as courseClassName,
-  courseClass.term.id as termId,
-  department.name as department,
-  scheduleTeacher.id as teacherId,
-  scheduleTeacher.name as teacherName,
-  observer.id as observerId,
-  observer.name as observerName,
-  schedule.dayOfWeek as dayOfWeek,
-  schedule.startSection as startSection,
-  schedule.totalSection as totalSection,
-  course.name as course,
-  place.name as place
+  view.id as id,
+  view.supervisorDate as supervisorDate,
+  view.evaluateLevel as evaluateLevel,
+  view.status as status,
+  view.supervisorId as supervisorId,
+  view.supervisorName as supervisorName,
+  view.observerType as observerType,
+  view.courseClassName as courseClassName,
+  view.departmentName as departmentName,
+  view.teacherId as teacherId,
+  view.teacherName as teacherName,
+  view.dayOfWeek as dayOfWeek,
+  view.startSection as startSection,
+  view.totalSection as totalSection,
+  view.courseName as course,
+  view.termId as termId,
+  view.placeName as place
 )
-from ObservationForm form
-join form.taskSchedule schedule
-join form.observer observer
-join schedule.task task
-join task.courseClass courseClass
-join courseClass.course course
-join courseClass.department department
-join schedule.teacher scheduleTeacher
-left join schedule.place place
-where observer.department.name like :dept
-  and form.status > 0
-  and form.observerType = :type
-  and courseClass.term.id = :termId
-order by form.supervisorDate
-''', [dept: dept, type: type, termId: termId]
+from ObservationView view
+where view.termId = :termId
+  and view.observerType = :type
+  and view.status = :status
+  and view.departmentName like :dept
+order by view.supervisorDate
+''', [dept: dept, type: type, termId: termId , status: status]
+
+        def counts = ObservationView.executeQuery '''
+select new map(
+sum(case view.status when 2 then 1 else 0 end) as done,
+sum(case view.status when 1 then 1 else 0 end) as todo
+)
+from ObservationView view
+where view.termId = :termId
+  and view.observerType = :type
+  and view.departmentName like :dept
+''', [dept: dept, type: type, termId: termId ]
+        return [
+                term: Term.findAll("from Term t order by t.id desc"),
+                activeTermId: termId,
+                counts: counts[0],
+                list: result
+        ]
     }
 
     def getFormForShow(Long id){
@@ -63,8 +73,11 @@ order by form.supervisorDate
             if(!isAdmin && form.teacher?.department?.id !=securityService.departmentId){
                 throw new BadRequestException()
             }
-            def schedule = scheduleService.showSchedule(form.taskSchedule.id.toString())
-            schedule.form = getFormInfo(form)
+            def schedule = [
+                    schedule: observationFormService.getFormTimeslot(termService.activeTerm.id,form)[0],
+                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
+                    form: getFormInfo(form)
+            ]
             schedule.evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
@@ -78,7 +91,6 @@ order by form.supervisorDate
     Map getFormInfo(ObservationForm form) {
         return [
                 id: form.id,
-                scheduleId: form.taskSchedule.id,
                 teacherId: form.teacher.id,
                 supervisorName: form.observer.name,
                 supervisorWeek: form.lectureWeek,

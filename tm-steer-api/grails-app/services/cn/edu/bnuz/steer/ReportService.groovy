@@ -10,27 +10,20 @@ class ReportService {
     ObserverSettingService observerSettingService
     def messageSource
 
-    def groupByDepartment(String userId) {
+    def groupByDepartment() {
         def term = termService.activeTerm
-
-        def type=messageSource.getMessage("main.supervisor.university",null, Locale.CHINA)
-        def result =ObservationForm.executeQuery '''
+        def result =ObservationView.executeQuery '''
 select new map(
-  department.name as department,
+  view.departmentName as departmentName,
   count(*) as supervisorTimes,
-  sum(form.totalSection) as totalSection
+  sum(view.formTotalSection) as totalSection
 )
-from ObservationForm form
-join form.taskSchedule schedule
-join form.observerType observerType
-join schedule.task task
-join task.courseClass courseClass
-join courseClass.department department
-where form.status > 0
-  and observerType.name = :type
-  and courseClass.term.id = :termId
-group by department.name
-''', [termId: term.id, type: type]
+from ObservationView view
+where view.termId = :termId
+ and view.status > 0
+ and view.observerType = :type
+group by view.departmentName
+''', [termId: term.id, type: 1]
         return [
                 isAdmin:observerSettingService.isAdmin(),
                 list: result,
@@ -38,10 +31,8 @@ group by department.name
 
     }
 
-    def countByObserver(String userId) {
+    def countByObserver() {
         def term = termService.activeTerm
-
-        def type=messageSource.getMessage("main.supervisor.university",null, Locale.CHINA)
         def result =ObservationForm.executeQuery '''
 select new map(
   observer.id as supervisorId,
@@ -52,23 +43,19 @@ select new map(
 )
 from ObservationForm form
 join form.observer observer
-join form.taskSchedule schedule
-join form.observerType observerType
-join schedule.task task
-join task.courseClass courseClass
 join observer.department department
-where form.status > 0
-  and observerType.name = :type
-  and courseClass.term.id = :termId
-group by observer,department
-''', [termId: term.id, type: type]
+where form.termId = :termId
+ and form.status > 0
+ and form.observerType = :type
+group by observer.id, observer.name, department.name
+''', [termId: term.id, type: 1]
         return [
                 list: result,
         ]
 
     }
 
-    def teacherActive(String userId){
+    def teacherActive(){
         def result=ObservationPriority.executeQuery'''
 select new map(
 ta.teacherId as teacherId,
@@ -89,30 +76,22 @@ order by ta.departmentName,teacherName
 
     def byTeacherForCollege(String userId) {
         def term = termService.activeTerm
-        def type=messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
-
-        def dept = Teacher.load(userId)?.department.id
-
-        ObservationForm.executeQuery '''
+        def dept = Teacher.load(userId)?.department?.name
+        ObservationView.executeQuery '''
 select new map(
-  scheduleTeacher.id as teacherId,
-  scheduleTeacher.name as teacherName,
+  view.teacherId as teacherId,
+  view.teacherName as teacherName,
+  view.departmentName as departmentName,
   count(*) as supervisorTimes,
-  department.name as departmentName
+  sum(view.formTotalSection) as totalSection
 )
-from ObservationForm form
-join form.teacher scheduleTeacher
-join form.taskSchedule schedule
-join form.observerType observerType
-join schedule.task task
-join task.courseClass courseClass
-join courseClass.department department
-where form.status > 0
-  and observerType.name = :type
-  and courseClass.term.id = :termId
-  and (scheduleTeacher.department.id = :dept or department.id = :dept)
-group by scheduleTeacher,department
-''', [termId: term.id, type: type, dept:dept]
+from ObservationView view
+where view.termId = :termId
+ and view.status > 0
+ and view.observerType = :type
+ and view.departmentName like :dept
+group by view.teacherId, view.teacherName, view.departmentName
+''', [termId: term.id, type: 2, dept:observerSettingService.isAdmin()? "%" : dept]
 
     }
 

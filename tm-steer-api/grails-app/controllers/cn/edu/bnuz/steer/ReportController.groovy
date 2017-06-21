@@ -13,42 +13,33 @@ class ReportController {
     RewardService rewardService
     SecurityService securityService
 
-    def index(String userId){
-        renderJson([isadmin:securityService.hasRole("ROLE_OBSERVATION_ADMIN")])
+    def index(String type){
+        switch (type){
+            case "DEPARTMENT" : renderJson(reportService.groupByDepartment())
+                                break
+            case "OBSERVER" : renderJson(reportService.countByObserver())
+                break
+            case "TEACHER-U" : renderJson(reportService.byTeacherForUniversity())
+                break
+            case "TEACHER-C" : renderJson(reportService.byTeacherForCollege(securityService.userId))
+                break
+            default: renderJson([isAdmin:securityService.hasRole("ROLE_OBSERVATION_ADMIN")])
+        }
+
     }
 
-    def departmentReport(String userId){
-        renderJson(reportService.groupByDepartment(userId))
-    }
-
-    def countByObserver(String userId){
-        renderJson(reportService.countByObserver(userId))
-    }
-
-    def teacherReport(String userId){
-        renderJson(reportService.byTeacherForUniversity())
-    }
-
-    def teacherSupervisedReport(String userId){
-        String type = params.t
-        if("university"==type) renderJson(reportService.byTeacherForUniversity())
-        else if("college"==type) renderJson(reportService.byTeacherForCollege(userId))
-        else renderBadRequest()
-    }
-
-    def reward(String userId){
-        String month = params.month
-        if(!month || month=="null"){
+    def reward(String month){
+        if(!month || month == "null"){
             def now = new Date().format("MM")
             renderJson([
                     monthes: rewardService.monthes,
                     month: now,
-                    list: rewardService.list(userId, now)
+                    list: rewardService.list(now)
             ])
         }else{
             renderJson([
                     month: month,
-                    list: rewardService.list(userId, month)
+                    list: rewardService.list(month)
             ])
         }
 
@@ -60,8 +51,8 @@ class ReportController {
         if(!month || month=="null"){
             throw new BadRequestException()
         }else{
-            rewardService.done(userId, month)
-            renderOk()
+            rewardService.done(month)
+            renderJson([ok:true])
         }
 
     }
