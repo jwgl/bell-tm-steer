@@ -47,7 +47,6 @@ order by form.supervisorDate
                     evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
                     form: getFormInfo(form)
             ]
-            println "herer"
             schedule.evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value

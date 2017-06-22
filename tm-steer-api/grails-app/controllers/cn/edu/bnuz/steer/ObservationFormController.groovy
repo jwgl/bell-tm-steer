@@ -19,7 +19,6 @@ class ObservationFormController {
     def save(String userId) {
         def cmd = new ObservationFormCommand()
         bindData(cmd, request.JSON)
-        println cmd.tostring()
         def form = observationFormService.create(userId, cmd)
         renderJson([id: form.id])
     }

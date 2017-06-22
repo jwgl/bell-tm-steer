@@ -25,7 +25,6 @@ class ScheduleController {
                 startSection:   params.getInt('startSection'),
                 endSection:     params.getInt('endSection')
         ])
-        println cmd.tostring()
         def schedule = scheduleService.getTeacherSchedules(securityService.userId, cmd)
         renderJson(schedule)
     }

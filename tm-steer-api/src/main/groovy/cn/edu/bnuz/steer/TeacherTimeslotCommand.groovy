@@ -8,8 +8,8 @@ class TeacherTimeslotCommand {
     Integer startSection
 
     def setTimeslot(Integer timeslot) {
-        this.dayOfWeek = timeslot.intdiv(100)
-        this.startSection = timeslot % 100
+        this.dayOfWeek = timeslot.intdiv(10000)
+        this.startSection = (timeslot % 10000).intdiv(100)
     }
 
     public <T> T asType(Class<T> clazz) {

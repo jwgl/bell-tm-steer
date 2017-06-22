@@ -47,7 +47,6 @@ class ReportController {
 
     def rewardDone(String userId){
         String month = params.month
-        println month
         if(!month || month=="null"){
             throw new BadRequestException()
         }else{

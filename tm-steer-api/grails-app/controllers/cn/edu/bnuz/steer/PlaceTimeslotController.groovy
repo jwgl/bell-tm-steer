@@ -13,7 +13,6 @@ class PlaceTimeslotController {
     }
 
     def show(String id){
-        println id
         def term =termService.activeTerm
         renderJson(scheduleService.getPlaceSchedules(id, term.id))
     }

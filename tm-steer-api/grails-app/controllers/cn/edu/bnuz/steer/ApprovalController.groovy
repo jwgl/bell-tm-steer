@@ -15,9 +15,7 @@ class ApprovalController {
 
     def index(String approverId) {
         Integer termId = params.getInt('termId')
-        println termId
         termId = termId?:termService.activeTerm.id
-        println termId
         Integer status = params.getInt('status')
         renderJson(approvalService.list(termId, status?:1))
     }

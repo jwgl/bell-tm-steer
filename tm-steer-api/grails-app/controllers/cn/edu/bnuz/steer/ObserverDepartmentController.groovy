@@ -31,7 +31,6 @@ class ObserverDepartmentController {
         bindData cmd, request.JSON
         log.debug cmd.tostring()
         cmd.observerType = 2 //院督导
-        println cmd.tostring()
         def form=observerSettingService.save(cmd)
         if(form)  renderJson([id:form?.id])
         else renderBadRequest()
