@@ -14,15 +14,20 @@ class ReportController {
     SecurityService securityService
 
     def index(String type){
+        println type
         switch (type){
-            case "DEPARTMENT" : renderJson(reportService.groupByDepartment())
+            case "DEPARTMENT-U" : renderJson(reportService.groupByDepartment(1))
                                 break
-            case "OBSERVER" : renderJson(reportService.countByObserver())
-                break
+            case "DEPARTMENT-C" : renderJson(reportService.groupByDepartment(2))
+                                break
+            case "OBSERVER-U" : renderJson(reportService.countByObserver())
+                                break
+            case "OBSERVER-C" : renderJson(reportService.countByDeptObserver(securityService.userId))
+                                break
             case "TEACHER-U" : renderJson(reportService.byTeacherForUniversity())
-                break
+                                break
             case "TEACHER-C" : renderJson(reportService.byTeacherForCollege(securityService.userId))
-                break
+                                break
             default: renderJson([isAdmin:securityService.hasRole("ROLE_OBSERVATION_ADMIN")])
         }
 
@@ -45,7 +50,7 @@ class ReportController {
 
     }
 
-    def rewardDone(String userId){
+    def rewardDone(){
         String month = params.month
         if(!month || month=="null"){
             throw new BadRequestException()
@@ -55,4 +60,5 @@ class ReportController {
         }
 
     }
+
 }

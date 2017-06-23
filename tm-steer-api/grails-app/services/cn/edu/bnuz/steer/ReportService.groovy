@@ -8,9 +8,8 @@ import grails.transaction.Transactional
 class ReportService {
     TermService termService
     ObserverSettingService observerSettingService
-    def messageSource
 
-    def groupByDepartment() {
+    def groupByDepartment(Integer type) {
         def term = termService.activeTerm
         def result =ObservationView.executeQuery '''
 select new map(
@@ -23,7 +22,7 @@ where view.termId = :termId
  and view.status > 0
  and view.observerType = :type
 group by view.departmentName
-''', [termId: term.id, type: 1]
+''', [termId: term.id, type: type]
         return [
                 isAdmin:observerSettingService.isAdmin(),
                 list: result,
@@ -49,6 +48,33 @@ where form.termId = :termId
  and form.observerType = :type
 group by observer.id, observer.name, department.name
 ''', [termId: term.id, type: 1]
+        return [
+                list: result,
+        ]
+
+    }
+
+    def countByDeptObserver(String userId) {
+        def term = termService.activeTerm
+        def dept = Teacher.load(userId)?.department?.name
+        def result =ObservationForm.executeQuery '''
+select new map(
+  observer.id as supervisorId,
+  observer.name as supervisorName,
+  department.name as departmentName,
+  count(*) as supervisorTimes,
+  sum(form.totalSection) as totalSection
+)
+from ObservationForm form
+join form.observer observer
+join observer.department department
+where form.termId = :termId
+ and form.status > 0
+ and form.observerType = :type
+ and department.name like :dept
+group by observer.id, observer.name, department.name
+order by department.name
+''', [termId: term.id, type: 2, dept:observerSettingService.isAdmin()? "%" : dept]
         return [
                 list: result,
         ]
