@@ -15,12 +15,12 @@ class ApprovalController {
 
     def index(String approverId) {
         Integer termId = params.getInt('termId')
-        termId = termId?:termService.activeTerm.id
+        termId = termId ?: termService.activeTerm.id
         Integer status = params.getInt('status')
-        renderJson(approvalService.list(termId, status?:1))
+        renderJson(approvalService.list(termId, status ?: 1))
     }
 
-    def show(String approverId, Long id){
+    def show(String approverId, Long id) {
         renderJson(approvalService.getFormForShow(id))
     }
 
@@ -33,8 +33,7 @@ class ApprovalController {
         renderOk()
     }
 
-    class FeedItems{
-        List<Integer> ids
+    class FeedItems {
+        List<Integer > ids
     }
-
 }

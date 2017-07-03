@@ -4,7 +4,6 @@ import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.master.TermService
-import cn.edu.bnuz.bell.operation.TaskSchedule
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.bell.security.UserLogService
@@ -20,7 +19,7 @@ class ObservationFormService {
     UserLogService userLogService
     SecurityService securityService
 
-    ObservationForm create(String userId, ObservationFormCommand cmd){
+    ObservationForm create(String userId, ObservationFormCommand cmd) {
         //防止重复录入
         ObservationForm form =
                 ObservationForm.findByObserverAndSupervisorDateAndPlace(
@@ -28,27 +27,27 @@ class ObservationFormService {
                         cmd.supervisorDate,
                         cmd.place
                 )
-        if(form) {
+        if (form) {
             throw new BadRequestException()
         }
         def isAdmin = observerSettingService.isAdmin()
-        if(isAdmin && !cmd.supervisorId){
+        if (isAdmin && !cmd.observerId) {
             throw new BadRequestException()
         }
         def now = new Date()
         form = new ObservationForm(
-                observer: isAdmin?Teacher.load(cmd.supervisorId):Teacher.load(userId),
+                observer: isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(userId),
                 teacher: Teacher.load(cmd.teacherId),
                 dayOfWeek: cmd.dayOfWeek,
                 startSection: cmd.startSection,
-                lectureWeek: cmd.supervisorWeek,
+                lectureWeek: cmd.observationWeek,
                 totalSection: cmd.totalSection,
                 teachingMethods: cmd.teachingMethods,
                 supervisorDate: cmd.supervisorDate,
                 recordDate: now,
-                observerType: cmd.type,
+                observerType: cmd.observerType,
                 place: cmd.place,
-                status: cmd.status?:0,
+                status: cmd.status ?: 0,
                 earlier: cmd.earlier,
                 late:  cmd.late,
                 leave:  cmd.leave,
@@ -59,7 +58,7 @@ class ObservationFormService {
                 evaluateLevel:  cmd.evaluateLevel,
                 evaluationText: cmd.evaluationText,
                 suggest:  cmd.suggest,
-                operator: isAdmin?userId:null,
+                operator: isAdmin ? userId : null,
                 termId: termService.activeTerm.id,
                 observationCriteria: ObservationCriteria.findByActiveted(true)
         )
@@ -75,48 +74,47 @@ class ObservationFormService {
         form.save()
     }
 
-    ObservationForm  update(String userId, ObservationFormCommand cmd){
+    ObservationForm  update(String userId, ObservationFormCommand cmd) {
 
         ObservationForm form = ObservationForm.get(cmd.id)
-        if(!form) {
+        if (!form) {
             throw new NotFoundException()
         }
         if (form.observer.id != userId && !observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
-        if(this.cantUpdate(form)){
-//            println form.status
+        if (this.cantUpdate(form)){
             return null
         }
 
-        form.lectureWeek=cmd.supervisorWeek
-        form.totalSection= cmd.totalSection
-        form.teachingMethods= cmd.teachingMethods
-        form.supervisorDate= cmd.supervisorDate
-        form.observerType= cmd.type
-        form.earlier= cmd.earlier
-        form.late=  cmd.late
-        form.leave=  cmd.leave
-        form.dueStds= cmd.dueStds
-        form.attendantStds=  cmd.attendantStds
-        form.lateStds= cmd.lateStds
-        form.leaveStds=  cmd.leaveStds
-        form.evaluateLevel=  cmd.evaluateLevel
-        form.evaluationText= cmd.evaluationText
-        form.suggest=  cmd.suggest
-        form.status = cmd.status?:0
+        form.lectureWeek = cmd.observationWeek
+        form.totalSection = cmd.totalSection
+        form.teachingMethods = cmd.teachingMethods
+        form.supervisorDate = cmd.supervisorDate
+        form.observerType = cmd.observerType
+        form.earlier = cmd.earlier
+        form.late =  cmd.late
+        form.leave =  cmd.leave
+        form.dueStds = cmd.dueStds
+        form.attendantStds = cmd.attendantStds
+        form.lateStds = cmd.lateStds
+        form.leaveStds = cmd.leaveStds
+        form.evaluateLevel = cmd.evaluateLevel
+        form.evaluationText = cmd.evaluationText
+        form.suggest = cmd.suggest
+        form.status = cmd.status ?: 0
         form.updateOperator = userId
         form.updateDate = new Date()
 
         cmd.evaluations.each { item ->
             def evaluation = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id),form)
-            evaluation.value=item.value
+            evaluation.value = item.value
         }
 
         form.save()
     }
 
-    def list(String userId, Integer termId){
+    def list(String userId, Integer termId) {
         def term = termService.activeTerm
         def isAdmin = observerSettingService.isAdmin()
         def result = ObservationView.executeQuery '''
@@ -142,16 +140,16 @@ from ObservationView view
 where view.supervisorId like :userId
   and view.termId = :termId
 order by view.supervisorDate
-''', [userId: isAdmin?'%':userId, termId: termId?:term.id]
+''', [userId: isAdmin ? '%' : userId, termId: termId ?: term.id]
         return [isAdmin : isAdmin,
                 list: result,
-                activeTerm: termId?:term.id,
+                activeTerm: termId ?: term.id,
                 terms: observerSettingService.terms]
     }
 
     def getFormForEdit(String userId, Long id) {
         def form = ObservationForm.get(id)
-        if(form) {
+        if (form) {
             if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
@@ -162,28 +160,27 @@ order by view.supervisorDate
             def term = termService.activeTerm
             def isAdmin = observerSettingService.isAdmin()
             def type = isAdmin? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(userId,term.id)
-            def schedule = [
-                    term : [
-                            startWeek  : term.startWeek,
-                            maxWeek    : term.maxWeek,
-                            currentWeek: term.currentWorkWeek,
-                            startDate  : term.startDate,
-                            swapDates  : term.swapDates,
-                            endWeek    : term.endWeek,
-                    ],
-                    timeslot: getFormTimeslot(term.id, form),
-                    type        : type,
-                    evaluationSystem    : observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
-                    isAdmin             : isAdmin,
-                    supervisors         : isAdmin? observerSettingService.findCurrentObservers(term.id):null
-            ]
-            schedule.form = getFormInfo(form)
-            schedule.evaluationSystem.each { group ->
+            def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id)
+            evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
                 }
             }
-            return schedule
+            return [
+                    form             : getFormInfo(form),
+                    term : [
+                            startWeek   : term.startWeek,
+                            maxWeek     : term.maxWeek,
+                            currentWeek : term.currentWorkWeek,
+                            startDate   : term.startDate,
+                            swapDates   : term.swapDates,
+                            endWeek     : term.endWeek,
+                    ],
+                    types               : type,
+                    evaluationSystem : evaluationSystem,
+                    isAdmin          : isAdmin,
+                    observers         : isAdmin ? observerSettingService.findCurrentObservers(term.id) : null
+            ]
         }
         return null
     }
@@ -191,30 +188,29 @@ order by view.supervisorDate
     def getFormForShow(String userId, Long id) {
         def form = ObservationForm.get(id)
 
-        if(form) {
+        if (form) {
             if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
-
-            def schedule = [
-                    schedule: getFormTimeslot(termService.activeTerm.id,form)[0],
-                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
-                    form: getFormInfo(form)
-                    ]
-            schedule.evaluationSystem.each { group ->
+            def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id)
+            evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
                 }
             }
-            schedule.isAdmin = observerSettingService.isAdmin()
-            return schedule
+
+            return [
+                    form:             getFormInfo(form),
+                    evaluationSystem: evaluationSystem,
+                    isAdmin:          observerSettingService.isAdmin()
+            ]
         }
         return null
     }
 
-    def delete(String userId, Long id){
+    def delete(String userId, Long id) {
         def form = ObservationForm.get(id)
-        if(form) {
+        if (form) {
             if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
@@ -226,14 +222,14 @@ order by view.supervisorDate
         }
     }
 
-    def cancel(String userId, Long id){
+    def cancel(Long id) {
         def form = ObservationForm.get(id)
-        if(form) {
+        if (form) {
             /*只有管理员可以撤销*/
             if (!observerSettingService.isAdmin() ) {
                 throw new ForbiddenException()
             }
-            if (form.status!=1) {
+            if (form.status !=1 ) {
                 throw new BadRequestException()
             }
             form.setStatus(0)
@@ -242,10 +238,10 @@ order by view.supervisorDate
     }
 
 
-    def submit(String userId, Long id){
+    def submit(String userId, Long id) {
         def form = ObservationForm.get(id)
 
-        if(form) {
+        if (form) {
             if (userId != form.observer.id && !observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
@@ -258,14 +254,14 @@ order by view.supervisorDate
         }
     }
 
-    def feed(String userId, Long id){
+    def feed(Long id) {
         def form = ObservationForm.get(id)
 
-        if(form) {
+        if (form) {
             if (!observerSettingService.isAdmin()) {
                 throw new ForbiddenException()
             }
-            if (form.status!=1) {
+            if (form.status !=1 ) {
                 throw new BadRequestException()
             }
             form.setStatus(2)
@@ -277,13 +273,13 @@ order by view.supervisorDate
         return [
                 id: form.id,
                 teacherId: form.teacher.id,
-                supervisorId: form.observer.id,
-                supervisorName: form.observer.name,
-                supervisorWeek: form.lectureWeek,
+                observerId: form.observer.id,
+                teacherName: form.teacher.name,
+                observationWeek: form.lectureWeek,
                 totalSection: form.totalSection,
                 teachingMethods: form.teachingMethods,
                 supervisorDate: form.supervisorDate,
-                type: form.observerType,
+                observerType: form.observerType,
                 place: form.place,
                 earlier: form.earlier,
                 late: form.late,
@@ -297,23 +293,24 @@ order by view.supervisorDate
                 suggest: form.suggest,
                 status: form.status,
                 isActive: form.termId == termService.activeTerm.id,
+                timeslot: getFormTimeslot(form),
         ]
 
     }
 
-    private cantUpdate(ObservationForm form){
+    private cantUpdate(ObservationForm form) {
         return form.status
     }
 
-    def getFormTimeslot(Integer termId, ObservationForm form){
+    def getFormTimeslot(ObservationForm form) {
         TeacherTimeslotCommand cmd = new TeacherTimeslotCommand(
-                termId      : termId,
+                termId      : form.termId,
                 teacherId   : form.teacher.id,
                 week        : form.lectureWeek,
-                timeslot    : form.dayOfWeek * 100 + form.startSection,
+                timeslot    : form.dayOfWeek * 10000 + form.startSection * 100,
         )
         def result = timeslotService.timeslot(cmd)
-        if( !result){
+        if (!result){
             throw new BadRequestException()
         }
         return result

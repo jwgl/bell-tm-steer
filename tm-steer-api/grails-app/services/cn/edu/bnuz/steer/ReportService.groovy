@@ -11,7 +11,7 @@ class ReportService {
 
     def groupByDepartment(Integer type) {
         def term = termService.activeTerm
-        def result =ObservationView.executeQuery '''
+        def result = ObservationView.executeQuery '''
 select new map(
   view.departmentName as departmentName,
   count(*) as supervisorTimes,
@@ -32,7 +32,7 @@ group by view.departmentName
 
     def countByObserver() {
         def term = termService.activeTerm
-        def result =ObservationForm.executeQuery '''
+        def result = ObservationForm.executeQuery '''
 select new map(
   observer.id as supervisorId,
   observer.name as supervisorName,
@@ -57,7 +57,7 @@ group by observer.id, observer.name, department.name
     def countByDeptObserver(String userId) {
         def term = termService.activeTerm
         def dept = Teacher.load(userId)?.department?.name
-        def result =ObservationForm.executeQuery '''
+        def result = ObservationForm.executeQuery '''
 select new map(
   observer.id as supervisorId,
   observer.name as supervisorName,
@@ -74,7 +74,7 @@ where form.termId = :termId
  and department.name like :dept
 group by observer.id, observer.name, department.name
 order by department.name
-''', [termId: term.id, type: 2, dept:observerSettingService.isAdmin()? "%" : dept]
+''', [termId: term.id, type: 2, dept: observerSettingService.isAdmin() ? "%" : dept]
         return [
                 list: result,
         ]
@@ -82,7 +82,7 @@ order by department.name
     }
 
     def teacherActive(){
-        def result=ObservationPriority.executeQuery'''
+        def result = ObservationPriority.executeQuery'''
 select new map(
 ta.teacherId as teacherId,
 ta.teacherName as teacherName,
@@ -117,7 +117,7 @@ where view.termId = :termId
  and view.observerType = :type
  and view.departmentName like :dept
 group by view.teacherId, view.teacherName, view.departmentName
-''', [termId: term.id, type: 2, dept:observerSettingService.isAdmin()? "%" : dept]
+''', [termId: term.id, type: 2, dept: observerSettingService.isAdmin()? "%" : dept]
 
     }
 

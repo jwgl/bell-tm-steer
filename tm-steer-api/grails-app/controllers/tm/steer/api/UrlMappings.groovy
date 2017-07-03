@@ -23,7 +23,6 @@ class UrlMappings {
         "/reports"(resources: "report"){
             collection {
                 "/reward"(controller: 'report', action: 'reward', method: 'GET')
-                "/rewardDone"(controller: 'report', action: 'rewardDone', method: 'GET')
             }
         }
 

@@ -5,7 +5,7 @@ import grails.transaction.Transactional
 @Transactional
 class LegacyDataService {
 
-    def getTerms(){
+    def getTerms() {
         ObservationLegacyForm.executeQuery'''
 select DISTINCT l.termId
 from ObservationLegacyForm l
@@ -13,7 +13,7 @@ order by l.termId desc
 '''
     }
 
-    def list(Integer termId){
+    def list(Integer termId) {
         ObservationLegacyForm.executeQuery'''
 select DISTINCT l
 from ObservationLegacyForm l
@@ -22,7 +22,7 @@ order by l.listentime desc
 ''',[termId: termId]
     }
 
-    def types(Integer termId){
+    def types(Integer termId) {
         ObservationLegacyForm.executeQuery'''
 select l.observerType
 from ObservationLegacyForm l

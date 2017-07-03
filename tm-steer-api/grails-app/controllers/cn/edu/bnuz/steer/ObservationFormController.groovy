@@ -27,7 +27,7 @@ class ObservationFormController {
         renderJson(observationFormService.getFormForEdit(userId, id))
     }
 
-    def show(String userId, Long id){
+    def show(String userId, Long id) {
         renderJson(observationFormService.getFormForShow(userId, id))
     }
 
@@ -40,12 +40,10 @@ class ObservationFormController {
         renderOk()
     }
 
-
-    def delete(String userId, Long id){
+    def delete(String userId, Long id) {
         observationFormService.delete(userId, id)
         renderOk()
     }
-
 
     def patch(String userId, Long id, String op) {
         def operation = Event.valueOf(op)
@@ -57,14 +55,12 @@ class ObservationFormController {
                 observationFormService.submit(userId, id)
                 break
             case Event.FINISH:
-                observationFormService.feed(userId, id)
+                observationFormService.feed(id)
                 break
             case Event.CANCEL:
-                observationFormService.cancel(userId, id)
+                observationFormService.cancel(id)
                 break
         }
         renderJson([ok:true])
     }
-
-
 }

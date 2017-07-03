@@ -14,7 +14,7 @@ class ObservationFormController {
 
     def index() { }
     def show(String userId, Long id) {
-        if(securityService.hasRole("ROLE_SUPERVISOR_ADMIN") || !id ){
+        if (securityService.hasRole("ROLE_SUPERVISOR_ADMIN") || !id ){
             report(new ReportRequest(
                     reportService: 'tm-report',
                     reportName: 'steer-observations-all',

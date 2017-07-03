@@ -12,6 +12,7 @@ class SettingController {
     ObserverSettingService observerSettingService
     DepartmentService departmentService
     TermService termService
+
     def index() {
         renderJson(observerSettingService.list())
     }
@@ -20,32 +21,33 @@ class SettingController {
     /**
      * 保存数据
      */
-    def save(){
+    def save() {
         ObserverCommand cmd = new ObserverCommand()
         bindData cmd, request.JSON
-        log.debug cmd.tostring()
-        def form=observerSettingService.save(cmd)
-        if(form)  renderJson([id:form?.id])
-        else renderBadRequest()
+        def form = observerSettingService.save(cmd)
+        if (form) {
+            renderJson([id:form?.id])
+        } else {
+            renderBadRequest()
+        }
     }
 
 
     /**
      * 创建
      */
-    def create(){
+    def create() {
         renderJson(
                 departments: departmentService.teachingDepartments,
-                activeTerm: termService.activeTerm?.id,
+                activeTerm: termService.activeTerm.id,
                 terms: observerSettingService.terms
-
         );
     }
 
     /**
      * 删除
      */
-    def delete(Long id){
+    def delete(Long id) {
         observerSettingService.delete(id)
         renderOk()
     }

@@ -11,7 +11,7 @@ class PublicService {
     ObservationCriteriaService observationCriteriaService
     ObservationFormService observationFormService
 
-    def list(String userId){
+    def list(String userId) {
         ObservationPublic.executeQuery '''
 select new map(
   form.id as id,
@@ -35,15 +35,15 @@ order by form.supervisorDate
 ''', [userId: userId]
     }
 
-    def getFormForShow(String userId, Long id){
+    def getFormForShow(String userId, Long id) {
         def form = ObservationForm.get(id)
 
-        if(form) {
-            if(form.teacher.id !=userId){
+        if (form) {
+            if (form.teacher.id != userId) {
                 throw new BadRequestException()
             }
             def schedule = [
-                    schedule: observationFormService.getFormTimeslot(termService.activeTerm.id,form)[0],
+                    schedule: observationFormService.getFormTimeslot(form)[0],
                     evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
                     form: getFormInfo(form)
             ]
@@ -83,7 +83,7 @@ order by form.supervisorDate
 
     }
 
-    def legacylist(String userId){
+    def legacylist(String userId) {
         ObservationLegacyForm.executeQuery'''
 select new map(
 l.id as id,
@@ -101,13 +101,13 @@ where l.teachercode = :userId and l.state = 'yes'
 ''',[userId: userId]
     }
 
-    def legacyShow(String userId, Long id){
+    def legacyShow(String userId, Long id) {
         def form = ObservationLegacyForm.get(id)
-        if(!form || form.teachercode != userId){
+        if (!form || form.teachercode != userId) {
             throw new ForbiddenException()
         }else {
-            form.inpectorcode =null
-            form.inpectorname =null
+            form.inpectorcode = null
+            form.inpectorname = null
             return form
         }
     }

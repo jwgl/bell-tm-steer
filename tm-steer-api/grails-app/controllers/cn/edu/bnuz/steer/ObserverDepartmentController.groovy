@@ -6,7 +6,6 @@ import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 
-
 /**
  * 学院督导管理
  */
@@ -15,32 +14,30 @@ class ObserverDepartmentController {
     ObserverSettingService observerSettingService
     SecurityService securityService
     ObserverDepartmentService observerDepartmentService
-    def messageSource
     TermService termService
     def index() {
-        def collegeSupervisor = messageSource.getMessage("main.supervisor.college",null, Locale.CHINA)
         renderJson(observerDepartmentService.list(securityService.departmentId))
     }
-
 
     /**
      * 保存数据
      */
-    def save(){
+    def save() {
         ObserverCommand cmd = new ObserverCommand()
         bindData cmd, request.JSON
-        log.debug cmd.tostring()
         cmd.observerType = 2 //院督导
-        def form=observerSettingService.save(cmd)
-        if(form)  renderJson([id:form?.id])
-        else renderBadRequest()
+        def form = observerSettingService.save(cmd)
+        if (form) {
+            renderJson([id:form?.id])
+        } else {
+            renderBadRequest()
+        }
     }
-
 
     /**
      * 创建
      */
-    def create(){
+    def create() {
         renderJson(
                 activeTerm: termService.activeTerm?.id,
                 terms: observerSettingService.terms
@@ -48,25 +45,25 @@ class ObserverDepartmentController {
         );
     }
 
-    def teachers(){
-        String query=params.q
+    def teachers() {
+        String query = params.q
         renderJson(observerDepartmentService.findTeacher(query, securityService.departmentId))
 
     }
 
-    def countByObserver(){
+    def countByObserver() {
         renderJson(observerDepartmentService.countByObserver(securityService.departmentId))
     }
 
     /**
      * 删除
      */
-    def delete(Long id){
+    def delete(Long id) {
         def supervisor = Observer.load(id)
-        if(!supervisor){
+        if (!supervisor) {
             throw new BadRequestException()
         }
-        if(supervisor.department.id != securityService.departmentId){
+        if (supervisor.department.id != securityService.departmentId) {
             throw new ForbiddenException()
         }
         observerSettingService.delete(id)

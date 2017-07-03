@@ -5,8 +5,8 @@ import grails.transaction.Transactional
 @Transactional
 class ObservationCriteriaService {
 
-    def getObservationCriteria(){
-        def result=ObservationCriteria.executeQuery'''
+    def getObservationCriteria() {
+        def result = ObservationCriteria.executeQuery'''
 select new map(
 item.id as id,
 item.title as title,
@@ -18,8 +18,8 @@ where es.activeted is true
         return result.groupBy {it.title}.entrySet()
     }
 
-    def getObservationCriteriaById(Long id){
-        def result=ObservationCriteria.executeQuery'''
+    def getObservationCriteriaById(Long id) {
+        def result = ObservationCriteria.executeQuery'''
 select new map(
 item.id as id,
 item.title as title,

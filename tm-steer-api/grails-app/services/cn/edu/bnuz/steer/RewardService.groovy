@@ -8,10 +8,9 @@ import grails.transaction.Transactional
 class RewardService {
     TermService termService
     ObserverSettingService observerSettingService
-    def messageSource
-    def list(String month){
+    def list(String month) {
         def term = termService.activeTerm
-        if(!observerSettingService.isAdmin()) {
+        if (!observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
         ObservationView.executeQuery '''
@@ -45,7 +44,7 @@ order by view.supervisorDate
 ''', [ termId: term.id, date:"%-${month}-%", type:1]
     }
 
-    def getMonthes(){
+    def getMonthes() {
         def term = termService.activeTerm
         ObservationForm.executeQuery '''
 select distinct substring(form.supervisorDate,6,2)
@@ -55,9 +54,9 @@ order by substring(form.supervisorDate,6,2)
 ''', [ termId: term.id]
     }
 
-    def done(String month){
+    def done(String month) {
         def term = termService.activeTerm
-        if(!observerSettingService.isAdmin()) {
+        if (!observerSettingService.isAdmin()) {
             throw new ForbiddenException()
         }
         ObservationForm.executeUpdate'''

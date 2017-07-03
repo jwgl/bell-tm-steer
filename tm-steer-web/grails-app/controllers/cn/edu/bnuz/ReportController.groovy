@@ -35,8 +35,8 @@ class ReportController {
 
     def reward(){
         String month = params.month
-        if(!month) throw new BadRequestException()
-        if(securityService.hasRole('ROLE_OBSERVATION_ADMIN')){
+        if (!month) throw new BadRequestException()
+        if (securityService.hasRole('ROLE_OBSERVATION_ADMIN')) {
             report(new ReportRequest(
                     reportService: 'tm-report',
                     reportName: 'steer-reward-list',

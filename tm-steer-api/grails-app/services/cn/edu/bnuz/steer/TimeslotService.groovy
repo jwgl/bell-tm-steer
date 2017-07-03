@@ -6,7 +6,7 @@ import grails.transaction.Transactional
 @Transactional
 class TimeslotService {
 
-    def timeslot(TeacherTimeslotCommand cmd){
+    def timeslot(TeacherTimeslotCommand cmd) {
         TaskSchedule.executeQuery '''
 select distinct new map(
   schedule.id as id,

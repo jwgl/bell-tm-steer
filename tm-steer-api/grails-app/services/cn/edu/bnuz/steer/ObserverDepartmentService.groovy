@@ -7,7 +7,6 @@ import grails.transaction.Transactional
 @Transactional
 class ObserverDepartmentService {
     TermService termService
-    def messageSource
 
     def list(String departmentId) {
         Observer.executeQuery '''
@@ -42,7 +41,7 @@ and (t.id like :query or t.name like :query)
 
     def countByObserver(String departmentId) {
         def term = termService.activeTerm
-        def result =ObservationForm.executeQuery '''
+        def result = ObservationForm.executeQuery '''
 select new map(
   observer.name as observer,
   count(*) as observeTimes,

@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 class PublicController {
     SecurityService securityService
     PublicService publicService
+
     def index() {
         renderJson(publicService.list(securityService.userId))
     }

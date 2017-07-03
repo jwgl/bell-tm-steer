@@ -33,15 +33,8 @@ class ScheduleController {
         renderJson(scheduleService.getFormForCreate(securityService.userId))
     }
 
-    def isCurrentSupervisor(String userId){
-        def term =termService.activeTerm
-        def result = Observer.findByTermIdAndTeacher(term.id, Teacher.load(userId)) !=null
-        renderJson([result:result])
-    }
-
-
-    def getTerm(){
-        def term =termService.activeTerm
+    def getTerm() {
+        def term = termService.activeTerm
         renderJson([
                     startWeek  : term.startWeek,
                     maxWeek    : term.maxWeek,
@@ -49,13 +42,15 @@ class ScheduleController {
                     startDate  : term.startDate,
                     swapDates  : term.swapDates,
                     endWeek    : term.endWeek,
-                    ])
+        ])
     }
 
-    def teacherActiveList(String userId){
-        def term =termService.activeTerm
-        if(scheduleService.isCollegeSupervisor(userId,term.id))
+    def teacherActiveList(String userId) {
+        def term = termService.activeTerm
+        if (scheduleService.isCollegeSupervisor(userId,term.id)) {
             renderBadRequest()
-        else renderJson(reportService.teacherActive())
+        } else {
+            renderJson(reportService.teacherActive())
+        }
     }
 }

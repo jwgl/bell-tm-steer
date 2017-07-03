@@ -14,15 +14,19 @@ class ObserverSettingService {
     UserLogService userLogService
 
     def save(ObserverCommand cmd) {
-        Observer observer=Observer.get(cmd.supervisorId)
-        if(observer){
+        Observer observer = Observer.get(cmd.supervisorId)
+        if (observer) {
             observer.setObserverType(cmd.observerType)
             observer.setTermId(cmd.termId)
-        }else{
+        } else {
             def teacher = Teacher.get(cmd.userId)
-            if(!teacher)  throw new NotFoundException()
+            if (!teacher) {
+                throw new NotFoundException()
+            }
             observer = Observer.findByTeacherAndTermIdAndObserverType(teacher,cmd.termId,cmd.observerType)
-            if(observer) return null
+            if (observer) {
+                return null
+            }
             observer = new Observer(
                     teacher: teacher,
                     department: teacher.department,
@@ -50,13 +54,13 @@ from Observer s join s.teacher t join s.department d
     }
 
 
-    def isCollegeSupervisor(String userId, Integer termId){
-        def result=Observer.executeQuery '''
+    def isCollegeSupervisor(String userId, Integer termId) {
+        def result = Observer.executeQuery '''
 select s.observerType
 from Observer s join s.teacher t
 where s.termId = :termId and t.id = :userId
 ''',[userId:userId, termId: termId]
-        return result ==[2]
+        return result == [2]
     }
 
     def isAdmin(){
@@ -72,7 +76,7 @@ where s.teacher.id = :userId and s.termId = :termId
     }
 
     def findCurrentObservers(Integer termId){
-        def result= Observer.executeQuery'''
+        def result = Observer.executeQuery'''
 select distinct new map(
 t.id as teacherId,
 t.name as teacherName,
@@ -93,7 +97,7 @@ order by t.id desc
     }
     def delete(Long id){
         def form = Observer.get(id)
-        if(form) {
+        if (form) {
             userLogService.log(securityService.userId,securityService.ipAddress,"DELETE", form,"${form as JSON}")
             form.delete()
         }

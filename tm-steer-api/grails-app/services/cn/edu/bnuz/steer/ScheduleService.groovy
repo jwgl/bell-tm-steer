@@ -33,7 +33,7 @@ class ScheduleService {
         ]
     }
 
-    private getBuildings(){
+    private getBuildings() {
         Place.executeQuery'''
 select distinct p.building from Place p where p.enabled = true and p.isExternal=false
 '''
@@ -50,12 +50,12 @@ select new map(
 )
  from Place p where p.enabled = true and p.isExternal=false
   and p.building like :building and p.name like :query
-''',[building:building == null?"%":building,
+''',[building: building == null ? "%" : building,
      query: "%${placeName}%"],[max: 10]
     }
     List getTeacherSchedules(String userId, SheduleOptionsCommand cmd) {
         def term = termService.activeTerm
-        def result=TaskSchedule.executeQuery '''
+        def result = TaskSchedule.executeQuery '''
 select new map(
   schedule.id as id,
   department.name as department,
@@ -94,22 +94,22 @@ where courseClass.term.id = :termId
   and :weekOfTerm <= schedule.endWeek
   and ((schedule.oddEven = 0) or (schedule.oddEven = :weekOfTerm % 2))
 ''', [ termId: term.id,
-       teacherId: cmd.teacherId =='null'?'%':cmd.teacherId,
-       place: cmd.place == 'null'?'%':"${cmd.place}%",
-       department: cmd.departmentId == 'null'?'%':cmd.departmentId,
+       teacherId: cmd.teacherId == 'null' ? '%' : cmd.teacherId,
+       place: cmd.place == 'null' ? '%' : "${cmd.place}%",
+       department: cmd.departmentId == 'null' ? '%' : cmd.departmentId,
        weekOfTerm: cmd.weekOfTerm]
 //      过滤不在时段、不在星期几的课
-        def a=[]
-        for(i in cmd.startSection .. cmd.endSection){
-            a+=[i]
+        def a= []
+        for (i in cmd.startSection .. cmd.endSection) {
+            a += [i]
         }
 
         result.grep{
-            cmd.dayOfWeek==0 ?true:(it.dayOfWeek == cmd.dayOfWeek)
+            cmd.dayOfWeek == 0 ? true : (it.dayOfWeek == cmd.dayOfWeek)
         }.grep{item->
-            def list=[]
-            for(i in item.startSection .. item.startSection+item.totalSection-1){
-                list+=[i]
+            def list = []
+            for (i in item.startSection .. item.startSection + item.totalSection - 1) {
+                list += [i]
             }
             return a - list != a
         }
@@ -181,7 +181,7 @@ where scheduleTeacher.id = :teacherId
 ''', [teacherId: teacherId, termId: termId]
     }
 
-    boolean isCollegeSupervisor(String userId, Integer termId){
+    boolean isCollegeSupervisor(String userId, Integer termId) {
         return observerSettingService.isCollegeSupervisor(userId, termId)
     }
 

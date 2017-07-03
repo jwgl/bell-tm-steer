@@ -16,10 +16,10 @@ class ApprovalService {
     ObserverSettingService observerSettingService
     SecurityService securityService
 
-    def list(Integer termId, Integer status){
+    def list(Integer termId, Integer status) {
         def isAdmin = observerSettingService.isAdmin()
-        def dept=isAdmin? "%" : Teacher.load(securityService.userId).department.name
-        def type= isAdmin? 1 : 2
+        def dept = isAdmin ? "%" : Teacher.load(securityService.userId).department.name
+        def type = isAdmin ? 1 : 2
         def result = ObservationView.executeQuery '''
 select new map(
   view.id as id,
@@ -66,63 +66,39 @@ where view.termId = :termId
         ]
     }
 
-    def getFormForShow(Long id){
+    def getFormForShow(Long id) {
         def form = ObservationForm.get(id)
-        if(form) {
+        if (form) {
             def isAdmin = observerSettingService.isAdmin()
-            if(!isAdmin && form.teacher?.department?.id !=securityService.departmentId){
+            if (!isAdmin && form.teacher.department.id != securityService.departmentId) {
                 throw new BadRequestException()
             }
-            def schedule = [
-                    schedule: observationFormService.getFormTimeslot(termService.activeTerm.id,form)[0],
-                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
-                    form: getFormInfo(form)
-            ]
-            schedule.evaluationSystem.each { group ->
+            def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id)
+            evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
                 }
             }
-            return schedule
+
+            return [
+                    form:             observationFormService.getFormInfo(form),
+                    evaluationSystem: evaluationSystem,
+                    isAdmin:          observerSettingService.isAdmin()
+            ]
         }
         return null
     }
 
-    Map getFormInfo(ObservationForm form) {
-        return [
-                id: form.id,
-                teacherId: form.teacher.id,
-                supervisorName: form.observer.name,
-                supervisorWeek: form.lectureWeek,
-                totalSection: form.totalSection,
-                teachingMethods: form.teachingMethods,
-                supervisorDate: form.supervisorDate,
-                type: form.observerType,
-                place: form.place,
-                earlier: form.earlier,
-                late: form.late,
-                leave: form.leave,
-                dueStds: form.dueStds,
-                attendantStds: form.attendantStds,
-                lateStds: form.lateStds,
-                leaveStds: form.leaveStds,
-                evaluateLevel: form.evaluateLevel,
-                evaluationText: form.evaluationText,
-                suggest: form.suggest,
-                status: form.status,
-        ]
 
-    }
-
-    def feed(Long id){
+    def feed(Long id) {
         def form = ObservationForm.get(id)
 
-        if(form) {
+        if (form) {
             def isAdmin = observerSettingService.isAdmin()
-            if (!isAdmin && securityService.departmentId !=form.observer?.department?.id) {
+            if (!isAdmin && securityService.departmentId != form.observer?.department?.id) {
                 throw new ForbiddenException()
             }
-            if (form.status!=1) {
+            if (form.status != 1) {
                 throw new BadRequestException()
             }
             form.setStatus(2)

@@ -5,13 +5,12 @@ package cn.edu.bnuz.steer
  */
 class ObservationFormCommand {
     Long                    id
-    String                  scheduleId
     String                  teacherId
-    Integer                 supervisorWeek
+    Integer                 observationWeek
     Integer                 totalSection
     String                  teachingMethods
     String                  supervisorDate
-    Integer                 type
+    Integer                 observerType
     String                  place
     Integer                 earlier
     Integer                 late
@@ -25,7 +24,7 @@ class ObservationFormCommand {
     String                  evaluationText
     String                  suggest
     Integer                 status
-    String                  supervisorId
+    String                  observerId
     Integer                 dayOfWeek
     Integer                 startSection
 
@@ -36,13 +35,12 @@ class ObservationFormCommand {
 
     def tostring(){
 
-    "${scheduleId},"+
     "${teacherId},"+
-    "${supervisorWeek},"+
+    "${observationWeek},"+
     "${totalSection},"+
     "${teachingMethods},"+
     "${supervisorDate},"+
-    "${type},"+
+    "${observerType},"+
     "${place},"
     "${earlier},"+
     "${late},"+
@@ -52,7 +50,7 @@ class ObservationFormCommand {
     "${evaluationText},"+
     "${suggest},"+
     "${status},"+
-    "${supervisorId},"+
+    "${observerId},"+
     "${dayOfWeek},"+
     "${startSection}"
 

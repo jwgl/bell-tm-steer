@@ -12,13 +12,13 @@ class TeacherTimeslotController {
     ObservationCriteriaService observationCriteriaService
 
     def index(String teacherId) {
-        def term =termService.activeTerm
+        def term = termService.activeTerm
         def schedules = scheduleService.getTeacherSchedules(teacherId, term.id)
         renderJson([schedules: schedules])
     }
 
-    def show(String teacherId, Long id){
-        Integer week = params.getInt('week')?:0
+    def show(String teacherId, Long id) {
+        Integer week = params.getInt('week') ?: 0
         TeacherTimeslotCommand cmd = new TeacherTimeslotCommand(
                 termId      : termService.activeTerm.id,
                 teacherId   : teacherId,
@@ -27,10 +27,9 @@ class TeacherTimeslotController {
         )
         def term = termService.activeTerm
         def isAdmin = observerSettingService.isAdmin()
-        def type = isAdmin? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
-        def timeslot =timeslotService.timeslot(cmd)
-        renderJson(
-            [
+        def type = isAdmin ? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
+        def timeslot = timeslotService.timeslot(cmd)
+        renderJson([
                 term : [
                         startWeek  : term.startWeek,
                         maxWeek    : term.maxWeek,
@@ -39,12 +38,11 @@ class TeacherTimeslotController {
                         swapDates  : term.swapDates,
                         endWeek    : term.endWeek,
                 ],
-                timeslot    : timeslot,
-                type        : type,
+                timeslot            : timeslot,
+                types               : type,
                 evaluationSystem    : observationCriteriaService.observationCriteria,
                 isAdmin             : isAdmin,
-                supervisors         : isAdmin? observerSettingService.findCurrentObservers(term.id):null
-            ]
-        )
+                observers           : isAdmin ? observerSettingService.findCurrentObservers(term.id) : null
+        ])
     }
 }
