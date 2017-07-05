@@ -52,6 +52,7 @@ class ObservationLegacyForm {
         comment        '历史遗留数据'
 
     }
+
     static constraints = {
         collegename     nullable:true
         teachername     nullable:true

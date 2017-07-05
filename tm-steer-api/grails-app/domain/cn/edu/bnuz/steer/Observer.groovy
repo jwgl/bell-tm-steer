@@ -10,6 +10,7 @@ class Observer {
      */
     Integer observerType
     Department department
+
     static mapping = {
         comment        '督导老师'
         id             generator: 'identity', comment: 'ID'
@@ -17,8 +18,5 @@ class Observer {
         termId         comment: '学期ID，2012-2013-1为20121'
         observerType   comment: '角色类型'
         department     comment: '所属学院'
-    }
-
-    static constraints = {
     }
 }

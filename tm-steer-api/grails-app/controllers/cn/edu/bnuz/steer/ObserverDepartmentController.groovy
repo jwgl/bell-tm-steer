@@ -28,7 +28,7 @@ class ObserverDepartmentController {
         cmd.observerType = 2 //院督导
         def form = observerSettingService.save(cmd)
         if (form) {
-            renderJson([id:form?.id])
+            renderJson([id:form.id])
         } else {
             renderBadRequest()
         }
@@ -39,7 +39,7 @@ class ObserverDepartmentController {
      */
     def create() {
         renderJson(
-                activeTerm: termService.activeTerm?.id,
+                activeTerm: termService.activeTerm.id,
                 terms: observerSettingService.terms
 
         );

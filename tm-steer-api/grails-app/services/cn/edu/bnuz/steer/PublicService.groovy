@@ -44,12 +44,12 @@ order by form.supervisorDate
             }
             def schedule = [
                     schedule: observationFormService.getFormTimeslot(form)[0],
-                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id),
+                    evaluationSystem: observationCriteriaService.getObservationCriteriaById(form.observationCriteria.id),
                     form: getFormInfo(form)
             ]
             schedule.evaluationSystem.each { group ->
                 group.value.each { item ->
-                    item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
+                    item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form).value
                 }
             }
             return schedule

@@ -34,7 +34,7 @@ class ObserverSettingService {
                     observerType: cmd.observerType
             )
         }
-        observer?.save(flush:true)
+        observer.save(flush:true)
     }
 
     def list() {
@@ -52,7 +52,6 @@ select new Map(
 from Observer s join s.teacher t join s.department d
 '''
     }
-
 
     def isCollegeSupervisor(String userId, Integer termId) {
         def result = Observer.executeQuery '''
@@ -76,16 +75,15 @@ where s.teacher.id = :userId and s.termId = :termId
     }
 
     def findCurrentObservers(Integer termId){
-        def result = Observer.executeQuery'''
+        Observer.executeQuery'''
 select distinct new map(
 t.id as teacherId,
 t.name as teacherName,
 s.observerType as observerType
 )
 from Observer s join s.teacher t
-where s.termId = :termId
+where s.termId = :termId and s.observerType = 1
 ''',[termId: termId]
-        return result.groupBy {it.observerType}.entrySet()
     }
 
     def getTerms(){
@@ -95,6 +93,7 @@ from Term t
 order by t.id desc
 '''
     }
+
     def delete(Long id){
         def form = Observer.get(id)
         if (form) {
@@ -102,5 +101,4 @@ order by t.id desc
             form.delete()
         }
     }
-
 }

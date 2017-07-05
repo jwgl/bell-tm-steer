@@ -27,13 +27,11 @@ class ApprovalController {
     def update(String approverId, Long id) {
         def cmd = new FeedItems()
         bindData(cmd, request.JSON)
-        cmd?.ids?.each { item->
-            approvalService.feed(item)
-        }
+        approvalService.feed(cmd)
         renderOk()
     }
 
     class FeedItems {
-        List<Integer > ids
+        List<Integer> ids
     }
 }

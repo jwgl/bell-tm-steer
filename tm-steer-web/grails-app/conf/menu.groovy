@@ -12,7 +12,4 @@ menuGroup 'main', {
     affair 40,{
         observationView      10, 'PERM_OBSERVATION_READ', '/web/steer/publics'
     }
-
-
-
 }

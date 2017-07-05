@@ -33,19 +33,24 @@ class ReportController {
             case "TEACHER-C":
                 renderJson(reportService.byTeacherForCollege(securityService.userId))
                 break
+            case "REWARD":
+                String month = params.month
+                Boolean done = params.getBoolean('done')
+                reward(month, done)
+                break
             default:
                 renderJson([isAdmin:securityService.hasRole("ROLE_OBSERVATION_ADMIN")])
         }
 
     }
 
-    def reward(String month, Boolean done){
+    private reward(String month, Boolean done){
         if (!month || month == "null") {
             def now = new Date().format("MM")
             renderJson([
-                    monthes: rewardService.monthes,
-                    month: now,
-                    list: rewardService.list(now)
+                monthes: rewardService.monthes,
+                month: now,
+                list: rewardService.list(now)
             ])
         } else {
             if (done) {
@@ -53,20 +58,10 @@ class ReportController {
                 renderJson([ok:true])
             } else {
                 renderJson([
-                        month: month,
-                        list: rewardService.list(month)
+                    month: month,
+                    list: rewardService.list(month)
                 ])
             }
         }
     }
-
-//    def rewardDone(){
-//        String month = params.month
-//        if (!month || month == "null") {
-//            throw new BadRequestException()
-//        } else {
-//            rewardService.done(month)
-//            renderJson([ok:true])
-//        }
-//    }
 }

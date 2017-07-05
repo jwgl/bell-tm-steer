@@ -1,7 +1,6 @@
 package cn.edu.bnuz.steer
 
 import cn.edu.bnuz.bell.workflow.Event
-import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import org.springframework.security.access.prepost.PreAuthorize
 
 /**
@@ -49,9 +48,6 @@ class ObservationFormController {
         def operation = Event.valueOf(op)
         switch (operation) {
             case Event.SUBMIT:
-                def cmd = new SubmitCommand()
-                bindData(cmd, request.JSON)
-                cmd.id = id
                 observationFormService.submit(userId, id)
                 break
             case Event.FINISH:

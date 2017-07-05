@@ -17,7 +17,6 @@ class SettingController {
         renderJson(observerSettingService.list())
     }
 
-
     /**
      * 保存数据
      */
@@ -26,21 +25,20 @@ class SettingController {
         bindData cmd, request.JSON
         def form = observerSettingService.save(cmd)
         if (form) {
-            renderJson([id:form?.id])
+            renderJson([id:form.id])
         } else {
             renderBadRequest()
         }
     }
-
 
     /**
      * 创建
      */
     def create() {
         renderJson(
-                departments: departmentService.teachingDepartments,
-                activeTerm: termService.activeTerm.id,
-                terms: observerSettingService.terms
+            departments: departmentService.teachingDepartments,
+            activeTerm: termService.activeTerm.id,
+            terms: observerSettingService.terms
         );
     }
 

@@ -18,7 +18,6 @@ class ObservationForm {
     Integer lectureWeek
     Integer dayOfWeek
     Integer startSection
-
     String  supervisorDate
     Integer totalSection
     String  evaluationText
@@ -39,6 +38,7 @@ class ObservationForm {
     String  updateOperator
     Date    updateDate
     ObservationCriteria     observationCriteria
+
     static hasMany = [observationItem:ObservationItem]
 
     static mapping = {
@@ -73,7 +73,6 @@ class ObservationForm {
         updateDate          comment: '最后修改日期'
         observationCriteria comment: '采用评分体系'
     }
-
 
     static constraints = {
         evaluationText      nullable: true

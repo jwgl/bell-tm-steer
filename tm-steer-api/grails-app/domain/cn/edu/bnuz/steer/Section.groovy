@@ -6,6 +6,7 @@ class Section {
     Integer start
     Integer total
     Integer displayOrder
+
     static mapping = {
         table 'dv_course_section'
         sort  'displayOrder'

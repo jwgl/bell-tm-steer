@@ -56,7 +56,7 @@ group by observer.id, observer.name, department.name
 
     def countByDeptObserver(String userId) {
         def term = termService.activeTerm
-        def dept = Teacher.load(userId)?.department?.name
+        def dept = Teacher.load(userId).department.name
         def result = ObservationForm.executeQuery '''
 select new map(
   observer.id as supervisorId,
@@ -102,7 +102,7 @@ order by ta.departmentName,teacherName
 
     def byTeacherForCollege(String userId) {
         def term = termService.activeTerm
-        def dept = Teacher.load(userId)?.department?.name
+        def dept = Teacher.load(userId).department.name
         ObservationView.executeQuery '''
 select new map(
   view.teacherId as teacherId,

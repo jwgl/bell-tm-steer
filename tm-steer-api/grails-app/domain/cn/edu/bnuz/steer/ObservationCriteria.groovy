@@ -5,7 +5,9 @@ class ObservationCriteria {
     String name
     String description
     Boolean activeted
+
     static hasMany = [items:ObservationCriteriaItem]
+
     static mapping = {
         comment        '评分体系'
         id             generator: 'identity', comment: 'ID'

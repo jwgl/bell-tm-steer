@@ -34,7 +34,6 @@ class ObservationView {
     String  courseName
     Integer termId
 
-
     static mapping = {
         table 'dv_observation_view'
     }

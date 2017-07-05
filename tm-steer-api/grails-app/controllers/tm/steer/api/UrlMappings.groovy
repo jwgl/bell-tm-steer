@@ -20,11 +20,7 @@ class UrlMappings {
             }
         }
 
-        "/reports"(resources: "report"){
-            collection {
-                "/reward"(controller: 'report', action: 'reward', method: 'GET')
-            }
-        }
+        "/reports"(resources: "report")
 
         "/approvers"(resources: "approval",include: []){
             "/observations"(resources: "approval")

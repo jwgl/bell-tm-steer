@@ -3,6 +3,7 @@ package cn.edu.bnuz.steer
 class ObservationItem {
     ObservationCriteriaItem observationCriteriaItem
     Integer value
+
     static belongsTo = [observationForm: ObservationForm]
 
     static mapping = {
@@ -12,6 +13,7 @@ class ObservationItem {
         observationCriteriaItem comment: '参考评分细则'
         observationForm         comment: '所属听课记录'
     }
+
     static constraints = {
         value   nullable: true
     }

@@ -59,10 +59,10 @@ where view.termId = :termId
   and view.departmentName like :dept
 ''', [dept: dept, type: type, termId: termId ]
         return [
-                term: Term.findAll("from Term t order by t.id desc"),
-                activeTermId: termId,
-                counts: counts[0],
-                list: result
+            term:           Term.findAll("from Term t order by t.id desc"),
+            activeTermId:   termId,
+            counts:         counts[0],
+            list:           result
         ]
     }
 
@@ -76,33 +76,33 @@ where view.termId = :termId
             def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id)
             evaluationSystem.each { group ->
                 group.value.each { item ->
-                    item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form)?.value
+                    item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form).value
                 }
             }
-
             return [
-                    form:             observationFormService.getFormInfo(form),
-                    evaluationSystem: evaluationSystem,
-                    isAdmin:          observerSettingService.isAdmin()
+                form:             observationFormService.getFormInfo(form),
+                evaluationSystem: evaluationSystem,
+                isAdmin:          observerSettingService.isAdmin()
             ]
         }
         return null
     }
 
 
-    def feed(Long id) {
-        def form = ObservationForm.get(id)
-
-        if (form) {
-            def isAdmin = observerSettingService.isAdmin()
-            if (!isAdmin && securityService.departmentId != form.observer?.department?.id) {
-                throw new ForbiddenException()
+    def feed(ApprovalController.FeedItems cmd) {
+        cmd.ids.each { id->
+            def form = ObservationForm.get(id)
+            if (form) {
+                def isAdmin = observerSettingService.isAdmin()
+                if (!isAdmin && securityService.departmentId != form.observer.department.id) {
+                    throw new ForbiddenException()
+                }
+                if (form.status != 1) {
+                    throw new BadRequestException()
+                }
+                form.setStatus(2)
+                form.save()
             }
-            if (form.status != 1) {
-                throw new BadRequestException()
-            }
-            form.setStatus(2)
-            form.save()
         }
     }
 }

@@ -11,10 +11,10 @@ class LegacyDataController {
 
     def index() {
         def termId = params.getInt('termId')
-        def terms = termId?null:legacyDataService.terms
+        def terms = termId ? null : legacyDataService.terms
         renderJson([
                 terms: terms,
-                termId: termId?:terms[0],
+                termId: termId ?: terms[0],
                 list: legacyDataService.list(termId?:terms[0]),
                 types: legacyDataService.types(termId?:terms[0])
         ])

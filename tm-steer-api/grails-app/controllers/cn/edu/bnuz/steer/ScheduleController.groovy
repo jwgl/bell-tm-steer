@@ -17,13 +17,13 @@ class ScheduleController {
 
     def index() {
         SheduleOptionsCommand cmd = new SheduleOptionsCommand([
-                teacherId:      params['teacherId'],
-                place:          params['place'],
-                departmentId:   params['departmentId'],
-                weekOfTerm:     params.getInt('weekOfTerm')?:0,
-                dayOfWeek:      params.getInt('dayOfWeek')?:0,
-                startSection:   params.getInt('startSection'),
-                endSection:     params.getInt('endSection')
+            teacherId:      params['teacherId'],
+            place:          params['place'],
+            departmentId:   params['departmentId'],
+            weekOfTerm:     params.getInt('weekOfTerm')?:0,
+            dayOfWeek:      params.getInt('dayOfWeek')?:0,
+            startSection:   params.getInt('startSection'),
+            endSection:     params.getInt('endSection')
         ])
         def schedule = scheduleService.getTeacherSchedules(securityService.userId, cmd)
         renderJson(schedule)
@@ -36,12 +36,12 @@ class ScheduleController {
     def getTerm() {
         def term = termService.activeTerm
         renderJson([
-                    startWeek  : term.startWeek,
-                    maxWeek    : term.maxWeek,
-                    currentWeek: term.currentWorkWeek,
-                    startDate  : term.startDate,
-                    swapDates  : term.swapDates,
-                    endWeek    : term.endWeek,
+            startWeek:      term.startWeek,
+            maxWeek:        term.maxWeek,
+            currentWeek:    term.currentWorkWeek,
+            startDate:      term.startDate,
+            swapDates:      term.swapDates,
+            endWeek:        term.endWeek,
         ])
     }
 

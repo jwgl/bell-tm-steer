@@ -105,5 +105,3 @@ security:
     oauth2:
         resource:
             userInfoUri: http://localhost/uaa/user
-
-

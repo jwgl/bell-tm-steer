@@ -62,6 +62,5 @@ group by observer
         return [
                 list: result,
         ]
-
     }
 }
