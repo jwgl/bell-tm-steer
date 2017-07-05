@@ -4,7 +4,7 @@ import cn.edu.bnuz.bell.operation.TaskSchedule
 import cn.edu.bnuz.bell.place.Place
 import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.organization.DepartmentService
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 import java.time.LocalDate
 

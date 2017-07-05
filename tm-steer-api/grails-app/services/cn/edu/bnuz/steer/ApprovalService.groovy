@@ -6,7 +6,7 @@ import cn.edu.bnuz.bell.master.Term
 import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 @Transactional
 class ApprovalService {

@@ -2,7 +2,7 @@ package cn.edu.bnuz.steer
 
 import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.master.TermService
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 @Transactional
 class RewardService {
