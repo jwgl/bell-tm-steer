@@ -3,7 +3,6 @@ package cn.edu.bnuz.steer
 import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
-import cn.edu.bnuz.bell.organization.Teacher
 
 /**
  * 课表

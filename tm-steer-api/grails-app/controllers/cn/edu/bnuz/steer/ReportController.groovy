@@ -1,6 +1,5 @@
 package cn.edu.bnuz.steer
 
-import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 

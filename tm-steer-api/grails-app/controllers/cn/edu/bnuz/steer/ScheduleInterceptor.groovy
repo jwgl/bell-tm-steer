@@ -3,7 +3,7 @@ package cn.edu.bnuz.steer
 import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.http.HttpStatus
 
-class SheduleInterceptor {
+class ScheduleInterceptor {
     SecurityService securityService
 
     boolean before() {
