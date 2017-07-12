@@ -97,7 +97,7 @@ l.listentime as listentime,
 l.evaluategrade as evaluategrade
 )
 from ObservationLegacyForm l
-where l.teachercode = :userId and l.state = 'yes'
+where l.teachercode = :userId and l.state
 ''',[userId: userId]
     }
 
