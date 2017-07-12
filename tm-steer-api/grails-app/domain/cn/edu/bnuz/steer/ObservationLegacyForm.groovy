@@ -31,7 +31,7 @@ class ObservationLegacyForm {
     String          type
     Integer         observerType
     String          states
-    String          state
+    Boolean         state
     Integer         termId
     String          a1
     String          a2
@@ -75,15 +75,11 @@ class ObservationLegacyForm {
         solidcounter    nullable:true
         leavecounter    nullable:true
         teachattitude   nullable:true
-        teachyear       nullable:true
         inpectorname    nullable:true
         inpectorcode    nullable:true
         submittime      nullable:true
         listencount     nullable:true
-        type            nullable:true
         states          nullable:true
-        state           nullable:true
-        termId          nullable:true
         a1              nullable:true
         a2              nullable:true
         a3              nullable:true
