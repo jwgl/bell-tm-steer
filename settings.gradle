@@ -1,4 +1,4 @@
-rootProject.name='tm-steer'
+rootProject.name='bell-tm-steer'
 
 include 'tm-steer-api'
 include 'tm-steer-web'
