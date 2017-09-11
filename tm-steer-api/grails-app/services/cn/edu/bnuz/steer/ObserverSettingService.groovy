@@ -82,7 +82,7 @@ t.name as teacherName,
 s.observerType as observerType
 )
 from Observer s join s.teacher t
-where s.termId = :termId and s.observerType = 1
+where s.termId = :termId and s.observerType != 2
 ''',[termId: termId]
     }
 
