@@ -9,7 +9,7 @@ menuGroup 'main', {
         report              40, 'PERM_OBSERVATION_WRITE', '/web/steer/reports'
         approval            50, 'PERM_OBSERVATION_DEPT_APPROVE', '/web/steer/approvers/${userId}/observations'
     }
-    affair 40,{
-        observationView      10, 'PERM_OBSERVATION_READ', '/web/steer/publics'
+    process 20,{
+        observationView      81, 'PERM_OBSERVATION_READ', '/web/steer/publics'
     }
 }
