@@ -133,6 +133,7 @@ select new map(
   schedule.startSection as startSection,
   schedule.totalSection as totalSection,
   course.name as course,
+  property.name as property,
   place.name as place,
   (select superviseCount from ObservationCount where teacherId = scheduleTeacher.id) as superviseCount
 )
@@ -142,6 +143,7 @@ join task.courseClass courseClass
 join courseClass.course course
 join courseClass.department department
 join schedule.teacher scheduleTeacher
+join course.property property
 left join schedule.place place
 where place.id = :placeId
   and courseClass.term.id = :termId
@@ -164,6 +166,7 @@ select new map(
   schedule.startSection as startSection,
   schedule.totalSection as totalSection,
   course.name as course,
+  property.name as property,
   place.name as place,
   courseItem.name as courseItem,
   (select superviseCount from ObservationCount where teacherId = scheduleTeacher.id) as superviseCount
@@ -174,6 +177,7 @@ join task.courseClass courseClass
 join courseClass.course course
 join courseClass.department department
 join schedule.teacher scheduleTeacher
+join course.property property
 left join schedule.place place
 left join task.courseItem courseItem
 where scheduleTeacher.id = :teacherId
