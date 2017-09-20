@@ -71,7 +71,7 @@ select new map(
   schedule.totalSection as totalSection,
   course.name as course,
   course.credit as credit,
-  property.name as property,
+  cp.propertyName as property,
   courseItem.name as courseItem,
   place.name as place,
   (select superviseCount from ObservationCount where teacherId = scheduleTeacher.id) as superviseCount
@@ -83,16 +83,15 @@ join courseClass.course course
 join courseClass.teacher courseTeacher
 join courseClass.department department
 join schedule.teacher scheduleTeacher
-join course.property property
 left join task.courseItem courseItem
-left join schedule.place place
+left join schedule.place place, CourseProperty cp
 where courseClass.term.id = :termId
   and scheduleTeacher.id like :teacherId
   and place.name like :place
   and department.id like :department
   and :weekOfTerm >= schedule.startWeek
   and :weekOfTerm <= schedule.endWeek
-  and ((schedule.oddEven = 0) or (schedule.oddEven = :weekOfTerm % 2))
+  and ((schedule.oddEven = 0) or (schedule.oddEven = :weekOfTerm % 2)) and courseClass.id=cp.id
 ''', [ termId: term.id,
        teacherId: cmd.teacherId == 'null' ? '%' : cmd.teacherId,
        place: cmd.place == 'null' ? '%' : "${cmd.place}%",
@@ -133,7 +132,7 @@ select new map(
   schedule.startSection as startSection,
   schedule.totalSection as totalSection,
   course.name as course,
-  property.name as property,
+  cp.propertyName as property,
   place.name as place,
   (select superviseCount from ObservationCount where teacherId = scheduleTeacher.id) as superviseCount
 )
@@ -143,10 +142,9 @@ join task.courseClass courseClass
 join courseClass.course course
 join courseClass.department department
 join schedule.teacher scheduleTeacher
-join course.property property
-left join schedule.place place
+left join schedule.place place, CourseProperty cp
 where place.id = :placeId
-  and courseClass.term.id = :termId
+  and courseClass.term.id = :termId and courseClass.id=cp.id
 ''', [placeId: placeId, termId: termId]
     }
 
@@ -166,7 +164,7 @@ select new map(
   schedule.startSection as startSection,
   schedule.totalSection as totalSection,
   course.name as course,
-  property.name as property,
+  cp.propertyName as property,
   place.name as place,
   courseItem.name as courseItem,
   (select superviseCount from ObservationCount where teacherId = scheduleTeacher.id) as superviseCount
@@ -177,11 +175,10 @@ join task.courseClass courseClass
 join courseClass.course course
 join courseClass.department department
 join schedule.teacher scheduleTeacher
-join course.property property
 left join schedule.place place
-left join task.courseItem courseItem
+left join task.courseItem courseItem, CourseProperty cp
 where scheduleTeacher.id = :teacherId
-  and courseClass.term.id = :termId
+  and courseClass.term.id = :termId and courseClass.id=cp.id
 ''', [teacherId: teacherId, termId: termId]
     }
 
