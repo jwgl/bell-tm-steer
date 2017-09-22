@@ -23,7 +23,7 @@ class ObservationForm {
     String  evaluationText
     String  teachingMethods
     String  suggest
-    Float   evaluateLevel
+    BigDecimal   evaluateLevel
     Date    rewardDate
     String  place
     Integer earlier
@@ -57,7 +57,7 @@ class ObservationForm {
         totalSection        comment: '听课节数'
         evaluationText      length: 1500,    comment: '评价'
         suggest             length: 1500,    comment: '建议'
-        evaluateLevel       comment: '评定等级'
+        evaluateLevel       precision: 3, scale: 1, comment: '评定等级'
         place               length: 50,      comment: '上课地点'
         earlier             defaultValue: "0",comment: '提前（分钟）'
         late                defaultValue: "0",comment: '迟到（分钟）'

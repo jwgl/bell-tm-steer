@@ -19,7 +19,7 @@ class ObservationFormCommand {
     Integer                 attendantStds
     Integer                 lateStds
     Integer                 leaveStds
-    Float                   evaluateLevel
+    BigDecimal              evaluateLevel
     List<EvaluationsItem>   evaluations
     String                  evaluationText
     String                  suggest
