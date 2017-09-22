@@ -43,7 +43,7 @@ where courseClass.term.id = :termId
    or schedule.oddEven = 2 and :week % 2 = 0)
   and schedule.dayOfWeek = :dayOfWeek
   and schedule.startSection = :startSection
-  and courseClass.id=cp.id
+  and courseClass.id = cp.id
 ''', cmd as Map
     }
 }

@@ -91,7 +91,7 @@ where courseClass.term.id = :termId
   and department.id like :department
   and :weekOfTerm >= schedule.startWeek
   and :weekOfTerm <= schedule.endWeek
-  and ((schedule.oddEven = 0) or (schedule.oddEven = :weekOfTerm % 2)) and courseClass.id=cp.id
+  and ((schedule.oddEven = 0) or (schedule.oddEven = :weekOfTerm % 2)) and courseClass.id = cp.id
 ''', [ termId: term.id,
        teacherId: cmd.teacherId == 'null' ? '%' : cmd.teacherId,
        place: cmd.place == 'null' ? '%' : "${cmd.place}%",
@@ -144,7 +144,7 @@ join courseClass.department department
 join schedule.teacher scheduleTeacher
 left join schedule.place place, CourseClassProperty cp
 where place.id = :placeId
-  and courseClass.term.id = :termId and courseClass.id=cp.id
+  and courseClass.term.id = :termId and courseClass.id = cp.id
 ''', [placeId: placeId, termId: termId]
     }
 
@@ -178,7 +178,7 @@ join schedule.teacher scheduleTeacher
 left join schedule.place place
 left join task.courseItem courseItem, CourseClassProperty cp
 where scheduleTeacher.id = :teacherId
-  and courseClass.term.id = :termId and courseClass.id=cp.id
+  and courseClass.term.id = :termId and courseClass.id = cp.id
 ''', [teacherId: teacherId, termId: termId]
     }
 
