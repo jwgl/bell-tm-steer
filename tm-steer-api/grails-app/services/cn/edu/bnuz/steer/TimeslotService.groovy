@@ -23,7 +23,7 @@ select distinct new map(
   schedule.totalSection as totalSection,
   course.name as course,
   course.credit as credit,
-  property.name as property,
+  cp.propertyName as property,
   place.name as place,
   (select count(*) from TaskStudent tst where tst.task = task) as studentCount
 )
@@ -34,8 +34,7 @@ join courseClass.course course
 join courseClass.teacher courseTeacher
 join courseClass.department department
 join schedule.teacher scheduleTeacher
-join course.property property
-left join schedule.place place
+left join schedule.place place, CourseClassProperty cp
 where courseClass.term.id = :termId
   and schedule.teacher.id = :teacherId
   and :week between schedule.startWeek and schedule.endWeek
@@ -44,6 +43,7 @@ where courseClass.term.id = :termId
    or schedule.oddEven = 2 and :week % 2 = 0)
   and schedule.dayOfWeek = :dayOfWeek
   and schedule.startSection = :startSection
+  and courseClass.id = cp.id
 ''', cmd as Map
     }
 }

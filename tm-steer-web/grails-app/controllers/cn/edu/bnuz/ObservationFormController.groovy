@@ -1,5 +1,6 @@
 package cn.edu.bnuz
 
+import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.report.ReportClientService
 import cn.edu.bnuz.bell.report.ReportRequest
 import cn.edu.bnuz.bell.report.ReportResponse
@@ -13,16 +14,16 @@ class ObservationFormController {
     SecurityService securityService
 
     def index() { }
-    def show(String userId, Long id) {
-        if (securityService.hasRole("ROLE_SUPERVISOR_ADMIN") || !id ){
+    def show(Long id) {
+        if (securityService.hasRole("ROLE_OBSERVATION_ADMIN") || !id ){
             report(new ReportRequest(
                     reportService: 'tm-report',
                     reportName: 'steer-observations-all',
                     format: 'xlsx',
                     parameters: [termId: id]
             ))
-        }else {
-            response.setStatus(HttpStatus.BAD_REQUEST)
+        } else {
+             throw new ForbiddenException()
         }
 
     }
