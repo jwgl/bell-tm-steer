@@ -15,14 +15,14 @@ class ObservationFormController {
 
     def index() { }
     def show(Long id) {
-         if (securityService.hasRole("ROLE_OBSERVATION_ADMIN") || !id ){
+        if (securityService.hasRole("ROLE_OBSERVATION_ADMIN") || !id ){
             report(new ReportRequest(
                     reportService: 'tm-report',
                     reportName: 'steer-observations-all',
                     format: 'xlsx',
                     parameters: [termId: id]
             ))
-        }else {
+        } else {
              throw new ForbiddenException()
         }
 

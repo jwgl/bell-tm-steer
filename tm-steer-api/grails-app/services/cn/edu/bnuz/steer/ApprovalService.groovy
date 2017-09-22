@@ -42,11 +42,11 @@ select new map(
 )
 from ObservationView view
 where view.termId = :termId
-  and view.observerType in (:type)
+  and view.observerType in (:types)
   and view.status = :status
   and view.departmentName like :dept
 order by view.supervisorDate
-''', [dept: dept, type: types, termId: termId , status: status]
+''', [dept: dept, types: types, termId: termId , status: status]
 
         def counts = ObservationView.executeQuery '''
 select new map(
@@ -55,9 +55,9 @@ sum(case view.status when 1 then 1 else 0 end) as todo
 )
 from ObservationView view
 where view.termId = :termId
-  and view.observerType in (:type)
+  and view.observerType in (:types)
   and view.departmentName like :dept
-''', [dept: dept, type: types, termId: termId ]
+''', [dept: dept, types: types, termId: termId ]
         return [
             term:           Term.findAll("from Term t order by t.id desc"),
             activeTermId:   termId,
