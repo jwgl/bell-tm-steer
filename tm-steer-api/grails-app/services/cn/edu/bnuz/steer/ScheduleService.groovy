@@ -84,7 +84,7 @@ join courseClass.teacher courseTeacher
 join courseClass.department department
 join schedule.teacher scheduleTeacher
 left join task.courseItem courseItem
-left join schedule.place place, CourseProperty cp
+left join schedule.place place, CourseClassProperty cp
 where courseClass.term.id = :termId
   and scheduleTeacher.id like :teacherId
   and place.name like :place
@@ -142,7 +142,7 @@ join task.courseClass courseClass
 join courseClass.course course
 join courseClass.department department
 join schedule.teacher scheduleTeacher
-left join schedule.place place, CourseProperty cp
+left join schedule.place place, CourseClassProperty cp
 where place.id = :placeId
   and courseClass.term.id = :termId and courseClass.id=cp.id
 ''', [placeId: placeId, termId: termId]
@@ -176,7 +176,7 @@ join courseClass.course course
 join courseClass.department department
 join schedule.teacher scheduleTeacher
 left join schedule.place place
-left join task.courseItem courseItem, CourseProperty cp
+left join task.courseItem courseItem, CourseClassProperty cp
 where scheduleTeacher.id = :teacherId
   and courseClass.term.id = :termId and courseClass.id=cp.id
 ''', [teacherId: teacherId, termId: termId]

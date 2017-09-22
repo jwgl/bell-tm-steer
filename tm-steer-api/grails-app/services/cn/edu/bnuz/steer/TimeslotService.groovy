@@ -34,7 +34,7 @@ join courseClass.course course
 join courseClass.teacher courseTeacher
 join courseClass.department department
 join schedule.teacher scheduleTeacher
-left join schedule.place place, CourseProperty cp
+left join schedule.place place, CourseClassProperty cp
 where courseClass.term.id = :termId
   and schedule.teacher.id = :teacherId
   and :week between schedule.startWeek and schedule.endWeek

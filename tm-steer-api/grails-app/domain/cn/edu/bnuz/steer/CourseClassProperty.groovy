@@ -1,6 +1,6 @@
 package cn.edu.bnuz.steer
 
-class CourseProperty {
+class CourseClassProperty {
     /**
      * 教学班ID
      */

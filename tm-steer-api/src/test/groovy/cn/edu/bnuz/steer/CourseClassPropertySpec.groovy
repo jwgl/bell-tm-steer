@@ -3,7 +3,7 @@ package cn.edu.bnuz.steer
 import grails.testing.gorm.DomainUnitTest
 import spock.lang.Specification
 
-class CoursePropertySpec extends Specification implements DomainUnitTest<CourseProperty> {
+class CourseClassPropertySpec extends Specification implements DomainUnitTest<CourseClassProperty> {
 
     def setup() {
     }
