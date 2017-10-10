@@ -84,6 +84,7 @@ class ObservationFormService {
         if (this.cantUpdate(form)){
             return null
         }
+        form.observer = Teacher.load(cmd.observerId)
         form.lectureWeek = cmd.observationWeek
         form.totalSection = cmd.totalSection
         form.teachingMethods = cmd.teachingMethods
@@ -134,7 +135,7 @@ select new map(
 from ObservationView view
 where view.supervisorId like :userId
   and view.termId = :termId
-order by view.supervisorDate
+order by view.supervisorDate desc
 ''', [userId: isAdmin ? '%' : userId, termId: termId ?: term.id]
         return [isAdmin : isAdmin,
                 list: result,
