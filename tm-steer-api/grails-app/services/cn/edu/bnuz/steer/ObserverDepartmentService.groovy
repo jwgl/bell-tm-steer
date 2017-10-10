@@ -49,13 +49,10 @@ select new map(
 )
 from ObservationForm form
 join form.observer observer
-join form.taskSchedule schedule
-join schedule.task task
-join task.courseClass courseClass
 join observer.department department
 where form.status > 0
   and form.observerType = 2
-  and courseClass.term.id = :termId
+  and form.termId = :termId
   and department.id = :departmentId
 group by observer
 ''', [termId: term.id, departmentId: departmentId]

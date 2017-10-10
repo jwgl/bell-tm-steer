@@ -32,7 +32,6 @@ class ObservationFormController {
 
     def update(String userId, Long id) {
         def cmd = new ObservationFormCommand()
-        println cmd.tostring()
         bindData(cmd, request.JSON)
         cmd.id = id
         observationFormService.update(userId, cmd)
