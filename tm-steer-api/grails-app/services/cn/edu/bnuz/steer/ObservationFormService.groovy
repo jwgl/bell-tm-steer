@@ -20,18 +20,19 @@ class ObservationFormService {
     SecurityService securityService
 
     ObservationForm create(String userId, ObservationFormCommand cmd) {
-        //防止重复录入
-        ObservationForm form =
-            ObservationForm.findByObserverAndSupervisorDateAndPlace(
-                Teacher.load(userId),
-                cmd.supervisorDate,
-                cmd.place
-            )
-        if (form) {
-            throw new BadRequestException()
-        }
         def isAdmin = observerSettingService.isAdmin()
         if (isAdmin && !cmd.observerId) {
+            throw new BadRequestException()
+        }
+        //防止重复录入
+        ObservationForm form =
+            ObservationForm.findByObserverAndSupervisorDateAndPlaceAndStartSection(
+                Teacher.load(isAdmin ? cmd.observerId : securityService.userId),
+                cmd.supervisorDate,
+                cmd.place,
+                cmd.startSection
+            )
+        if (form) {
             throw new BadRequestException()
         }
         def now = new Date()
