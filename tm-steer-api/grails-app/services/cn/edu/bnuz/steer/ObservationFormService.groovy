@@ -37,7 +37,7 @@ class ObservationFormService {
         }
         def now = new Date()
         form = new ObservationForm(
-            observer: isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(userId),
+            observer: isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(securityService.userId),
             teacher: Teacher.load(cmd.teacherId),
             dayOfWeek: cmd.dayOfWeek,
             startSection: cmd.startSection,
@@ -74,18 +74,18 @@ class ObservationFormService {
     }
 
     ObservationForm  update(String userId, ObservationFormCommand cmd) {
-
+        def isAdmin = observerSettingService.isAdmin()
         ObservationForm form = ObservationForm.get(cmd.id)
         if (!form) {
             throw new NotFoundException()
         }
-        if (form.observer.id != userId && !observerSettingService.isAdmin()) {
+        if (form.observer.id != userId && !isAdmin) {
             throw new ForbiddenException()
         }
         if (this.cantUpdate(form)){
             return null
         }
-        form.observer = Teacher.load(cmd.observerId)
+        form.observer = isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(securityService.userId)
         form.lectureWeek = cmd.observationWeek
         form.totalSection = cmd.totalSection
         form.teachingMethods = cmd.teachingMethods
