@@ -39,7 +39,7 @@ order by form.supervisorDate desc
         def form = ObservationForm.get(id)
 
         if (form) {
-            if (form.teacher.id != userId) {
+            if (form.teacher.id != userId || form.status != 2) {
                 throw new BadRequestException()
             }
             def schedule = [
