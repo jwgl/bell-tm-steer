@@ -26,8 +26,9 @@ class ObservationFormService {
         }
         //防止重复录入
         ObservationForm form =
-            ObservationForm.findByObserverAndSupervisorDateAndPlaceAndStartSection(
+            ObservationForm.findByObserverAndTeacherAndSupervisorDateAndPlaceAndStartSection(
                 Teacher.load(isAdmin ? cmd.observerId : securityService.userId),
+                Teacher.load(cmd.teacherId),
                 cmd.supervisorDate,
                 cmd.place,
                 cmd.startSection
