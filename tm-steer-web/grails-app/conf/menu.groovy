@@ -10,6 +10,6 @@ menuGroup 'main', {
         approval            50, 'PERM_OBSERVATION_DEPT_APPROVE', '/web/steer/approvers/${userId}/observations'
     }
     process 20,{
-        observationView      81, 'PERM_OBSERVATION_READ', '/web/steer/publics'
+        observationView      81, 'PERM_TASK_SCHEDULE_EXECUTE', '/web/steer/publics'
     }
 }
