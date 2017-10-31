@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 听课记录反馈
  */
-@PreAuthorize('hasAuthority("PERM_OBSERVATION_READ")')
+@PreAuthorize('hasAuthority("PERM_TASK_SCHEDULE_EXECUTE")')
 class PublicController {
     SecurityService securityService
     PublicService publicService
