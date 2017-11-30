@@ -51,7 +51,7 @@ from ObservationForm form
 join form.observer observer
 join observer.department department
 where form.status > 0
-  and form.observerType = 2
+  and form.observerType != 1
   and form.termId = :termId
   and department.id = :departmentId
 group by observer

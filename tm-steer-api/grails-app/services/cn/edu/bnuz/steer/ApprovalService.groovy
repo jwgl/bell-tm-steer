@@ -93,8 +93,9 @@ where view.termId = :termId
         cmd.ids.each { id->
             def form = ObservationForm.get(id)
             if (form) {
+                def view = ObservationView.load(id)
                 def isAdmin = observerSettingService.isAdmin()
-                if (!isAdmin && securityService.departmentId != form.observer.department.id) {
+                if (!isAdmin && Teacher.load(securityService.userId).department.name != view.departmentName) {
                     throw new ForbiddenException()
                 }
                 if (form.status != 1) {
