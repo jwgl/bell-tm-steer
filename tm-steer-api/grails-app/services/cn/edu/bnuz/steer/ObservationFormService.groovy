@@ -130,7 +130,7 @@ select new map(
   view.teacherName as teacherName,
   view.dayOfWeek as dayOfWeek,
   view.startSection as startSection,
-  view.totalSection as totalSection,
+  view.formTotalSection as totalSection,
   view.courseName as course,
   view.placeName as place
 )

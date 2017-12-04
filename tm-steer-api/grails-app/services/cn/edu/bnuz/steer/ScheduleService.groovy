@@ -59,6 +59,7 @@ select new map(
 select new map(
   schedule.id as id,
   department.name as department,
+  department.id as departmentId,
   scheduleTeacher.academicTitle as academicTitle,
   courseClass.name as courseClassName,
   scheduleTeacher.id as teacherId,
@@ -125,6 +126,7 @@ select new map(
   scheduleTeacher.name as teacherName,
   scheduleTeacher.academicTitle as academicTitle,
   department.name as department,
+  department.id as departmentId,
   schedule.startWeek as startWeek,
   schedule.endWeek as endWeek,
   schedule.oddEven as oddEven,
@@ -157,6 +159,7 @@ select new map(
   scheduleTeacher.name as teacherName,
   scheduleTeacher.academicTitle as academicTitle,
   department.name as department,
+  department.id as departmentId,
   schedule.startWeek as startWeek,
   schedule.endWeek as endWeek,
   schedule.oddEven as oddEven,
@@ -185,6 +188,22 @@ where scheduleTeacher.id = :teacherId
     boolean isCollegeSupervisor(String userId, Integer termId) {
         return observerSettingService.isCollegeSupervisor(userId, termId)
     }
+    /**
+     * 禁止院督导听非本学院开的课
+     * @param schedule
+     * @return
+     */
 
+    def observationPermission(def schedules) {
+        def term = termService.activeTerm
+        def myDepartment = observerSettingService.findDeptOfObserver(term.id)
+        if (myDepartment) {
+            schedules.each {item ->
+                if (item.departmentId != myDepartment[0]) {
+                    item['cantObserver'] = true
+                }
+            }
+        }
+    }
 
 }
