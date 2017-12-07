@@ -4,6 +4,7 @@ import cn.edu.bnuz.bell.operation.TaskSchedule
 import cn.edu.bnuz.bell.place.Place
 import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.organization.DepartmentService
+import cn.edu.bnuz.bell.security.SecurityService
 import grails.gorm.transactions.Transactional
 
 import java.time.LocalDate
@@ -14,6 +15,7 @@ class ScheduleService {
     TermService termService
     DepartmentService departmentService
     ObserverSettingService observerSettingService
+    SecurityService securityService
 
     def getFormForCreate(String userId) {
         def term = termService.activeTerm
@@ -197,9 +199,14 @@ where scheduleTeacher.id = :teacherId
     def observationPermission(def schedules) {
         def term = termService.activeTerm
         def myDepartment = observerSettingService.findDeptOfObserver(term.id)
-        if (myDepartment) {
+        def observers = observerSettingService.findCurrentObservers(term.id)
+        //如果不是校督导或领导兼任
+        if (!observers.find{ it.teacherId == securityService.userId } && myDepartment) {
             schedules.each {item ->
-                if (item.departmentId != myDepartment[0]) {
+                //将学术部门转为行政部门
+                def map =['95': '17', '92': '21']
+                def teachingDepartment = map[item.departmentId] ?: item.departmentId
+                if (item.departmentId != myDepartment[0] && teachingDepartment != myDepartment[0]) {
                     item['cantObserver'] = true
                 }
             }
