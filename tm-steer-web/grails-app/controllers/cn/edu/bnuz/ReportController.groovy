@@ -48,6 +48,26 @@ class ReportController {
         }
     }
 
+    def wages() {
+        Integer termId = params.int("termId") ?: 0
+        String departmentId
+        Integer type = params.int("type") ?: 1
+        boolean role = securityService.hasRole('ROLE_OBSERVATION_ADMIN')
+        if (role) {
+            departmentId = params.departmentId ?: '0'
+        } else {
+            departmentId = securityService.departmentId
+        }
+        println "${departmentId}-${termId}-${type}"
+        report(new ReportRequest(
+                reportService: 'tm-report',
+                reportName: 'steer-wages',
+                format: 'xlsx',
+                parameters: [term_id: termId, department_id: departmentId, type: type]
+        ))
+
+    }
+
     private report(ReportRequest reportRequest) {
         ReportResponse reportResponse = reportClientService.runAndRender(reportRequest)
 
