@@ -61,6 +61,7 @@ class ObservationFormService {
             evaluationText: cmd.evaluationText,
             suggest:  cmd.suggest,
             operator: isAdmin ? userId : null,
+            isScheduleTemp: cmd.isScheduleTemp,
             termId: termService.activeTerm.id,
             observationCriteria: ObservationCriteria.findByActiveted(true)
         )
@@ -130,7 +131,8 @@ select new map(
   view.teacherName as teacherName,
   view.dayOfWeek as dayOfWeek,
   view.startSection as startSection,
-  view.formTotalSection as totalSection,
+  view.totalSection as totalSection,
+  view.formTotalSection as formTotalSection,
   view.courseName as course,
   view.placeName as place
 )
@@ -305,7 +307,12 @@ order by view.supervisorDate desc
                 week        : form.lectureWeek,
                 timeslot    : form.dayOfWeek * 10000 + form.startSection * 100,
         )
-        def result = timeslotService.timeslot(cmd)
+        def result
+        if (form.isScheduleTemp) {
+            result = timeslotService.timeslotForScheduleTemp(cmd)
+        } else {
+            result = timeslotService.timeslot(cmd)
+        }
         if (!result){
             throw new BadRequestException()
         }

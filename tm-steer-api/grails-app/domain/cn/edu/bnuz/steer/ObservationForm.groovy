@@ -38,6 +38,7 @@ class ObservationForm {
     String  updateOperator
     Date    updateDate
     ObservationCriteria     observationCriteria
+    Boolean isScheduleTemp
 
     static hasMany = [observationItem:ObservationItem]
 
@@ -72,6 +73,7 @@ class ObservationForm {
         updateOperator      comment: '最后修改人'
         updateDate          comment: '最后修改日期'
         observationCriteria comment: '采用评分体系'
+        isScheduleTemp      comment: '是否无时间地点排课'
     }
 
     static constraints = {
@@ -96,5 +98,6 @@ class ObservationForm {
         observationCriteria nullable: true
         dayOfWeek           nullable: true
         startSection        nullable: true
+        isScheduleTemp      nullable: true
     }
 }
