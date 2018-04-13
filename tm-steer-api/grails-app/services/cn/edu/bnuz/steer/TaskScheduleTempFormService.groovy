@@ -98,19 +98,42 @@ where scheduleTeacher.id = :teacherId
         }
     }
 
-    def getFormForCreate() {
+    def getFormForCreate(UUID id, String teacherId) {
         def term = termService.activeTerm
+        def type = observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
+        def timeslot = Task.executeQuery'''
+select distinct new map(
+  task.id as taskId,
+  department.name as department,
+  teacher.academicTitle as academicTitle,
+  courseClass.name as courseClassName,
+  teacher.id as teacherId,
+  teacher.name as teacherName,
+  course.name as course,
+  course.credit as credit,
+  (select count(*) from TaskStudent tst where tst.task = task) as studentCount
+)
+from Task task
+join task.courseClass courseClass
+join courseClass.course course
+join courseClass.department department
+join task.teachers tt
+join tt.teacher teacher
+where task.id = :id and teacher.id = :teacherId
+''', [id: id, teacherId: teacherId]
         return [
-                term        : [
-                        startWeek  : term.startWeek,
-                        maxWeek    : term.maxWeek,
-                        currentWeek: term.currentWorkWeek,
-                        startDate  : term.startDate,
-                        swapDates  : term.swapDates,
-                        endWeek    : term.endWeek,
-                ],
-                sections    : Section.findAll(),
-                today       : LocalDate.now(),
+            term : [
+                startWeek  : term.startWeek,
+                maxWeek    : term.maxWeek,
+                currentWeek: term.currentWorkWeek,
+                startDate  : term.startDate,
+                swapDates  : term.swapDates,
+                endWeek    : term.endWeek,
+            ],
+            timeslot            : timeslot,
+            types               : type,
+            sections            : Section.findAll(),
+            evaluationSystem    : observationCriteriaService.observationCriteria,
         ]
     }
 
@@ -118,10 +141,11 @@ where scheduleTeacher.id = :teacherId
         def term = termService.activeTerm
         Task.executeQuery'''
 select new map(
-    task.id as taskId,
+    task.id as id,
     cc.code as code,
     cc.name as className,
     course.name as courseName,
+    course.credit as credit,
     teacher.name as teacherName,
     count(*) as studentCount
 )
@@ -135,56 +159,56 @@ where cc.term.id = :term
 and teacher.id = :teacherId 
 and course.isPractical is true
 and course.scheduleType = 0
-group by task.id, cc.code, cc.name, course.name, teacher.name
+group by task.id, cc.code, cc.name, course.name, course.credit, teacher.name
 ''', [term: term.id, teacherId: teacherId]
     }
 
-    def getSchedule(UUID uuid) {
-        def term = termService.activeTerm
-        def type = observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
-        return [
-            term : [
-                    startWeek  : term.startWeek,
-                    maxWeek    : term.maxWeek,
-                    currentWeek: term.currentWorkWeek,
-                    startDate  : term.startDate,
-                    swapDates  : term.swapDates,
-                    endWeek    : term.endWeek,
-            ],
-            timeslot            : timeslot(uuid),
-            types               : type,
-            evaluationSystem    : observationCriteriaService.observationCriteria,
-        ]
-    }
-
-    def timeslot(UUID id) {
-        TaskScheduleTemp.executeQuery '''
-select distinct new map(
-  schedule.id as id,
-  department.name as department,
-  scheduleTeacher.academicTitle as academicTitle,
-  courseClass.name as courseClassName,
-  scheduleTeacher.id as teacherId,
-  scheduleTeacher.name as teacherName,
-  schedule.startWeek as startWeek,
-  schedule.endWeek as endWeek,
-  schedule.oddEven as oddEven,
-  schedule.dayOfWeek as dayOfWeek,
-  schedule.startSection as startSection,
-  schedule.totalSection as totalSection,
-  course.name as course,
-  course.credit as credit,
-  schedule.place as place,
-  (select count(*) from TaskStudent tst where tst.task = task) as studentCount
-)
-from TaskScheduleTemp schedule
-join schedule.task task
-join task.courseClass courseClass
-join courseClass.course course
-join courseClass.department department
-join schedule.teacher scheduleTeacher
-where schedule.id = :id
-''', [id: id]
-    }
+//    def getSchedule(UUID uuid) {
+//        def term = termService.activeTerm
+//        def type = observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
+//        return [
+//            term : [
+//                    startWeek  : term.startWeek,
+//                    maxWeek    : term.maxWeek,
+//                    currentWeek: term.currentWorkWeek,
+//                    startDate  : term.startDate,
+//                    swapDates  : term.swapDates,
+//                    endWeek    : term.endWeek,
+//            ],
+//            timeslot            : timeslot(uuid),
+//            types               : type,
+//            evaluationSystem    : observationCriteriaService.observationCriteria,
+//        ]
+//    }
+//
+//    def timeslot(UUID id) {
+//        TaskScheduleTemp.executeQuery '''
+//select distinct new map(
+//  schedule.id as id,
+//  department.name as department,
+//  scheduleTeacher.academicTitle as academicTitle,
+//  courseClass.name as courseClassName,
+//  scheduleTeacher.id as teacherId,
+//  scheduleTeacher.name as teacherName,
+//  schedule.startWeek as startWeek,
+//  schedule.endWeek as endWeek,
+//  schedule.oddEven as oddEven,
+//  schedule.dayOfWeek as dayOfWeek,
+//  schedule.startSection as startSection,
+//  schedule.totalSection as totalSection,
+//  course.name as course,
+//  course.credit as credit,
+//  schedule.place as place,
+//  (select count(*) from TaskStudent tst where tst.task = task) as studentCount
+//)
+//from TaskScheduleTemp schedule
+//join schedule.task task
+//join task.courseClass courseClass
+//join courseClass.course course
+//join courseClass.department department
+//join schedule.teacher scheduleTeacher
+//where schedule.id = :id
+//''', [id: id]
+//    }
 
 }

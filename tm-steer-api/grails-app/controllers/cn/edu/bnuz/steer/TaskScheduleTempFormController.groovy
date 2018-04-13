@@ -12,12 +12,8 @@ class TaskScheduleTempFormController {
 
     def index() { }
 
-    def create() {
-        renderJson(taskScheduleTempFormService.getFormForCreate())
-    }
-
-    def show(String id) {
-        renderJson(taskScheduleTempFormService.getSchedule(UUID.fromString(id)))
+    def create(String taskId, String teacherId) {
+        renderJson(taskScheduleTempFormService.getFormForCreate(UUID.fromString(taskId), teacherId))
     }
 
     def save() {
@@ -31,10 +27,10 @@ class TaskScheduleTempFormController {
         renderJson(taskScheduleTempFormService.getFormForEdit(id))
     }
 
-    def update(Long id) {
+    def update(String id) {
         def cmd = new ScheduleTempCommand()
         bindData(cmd, request.JSON)
-        cmd.id = id
+        cmd.id = UUID.fromString(id)
         taskScheduleTempFormService.update(cmd)
         renderOk()
     }

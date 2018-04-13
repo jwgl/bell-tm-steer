@@ -87,6 +87,15 @@ class ObservationFormService {
         if (this.cantUpdate(form)){
             return null
         }
+        // 如果是未安排实践课，需要同步修改TaskScheduleTemp表中的起止周
+        if (form.isScheduleTemp) {
+            def schedule = TaskScheduleTemp.findByCreatorAndTeacherAndDayOfWeekAndStartWeek(
+                    form.observer, form.teacher, form.dayOfWeek, form.lectureWeek)
+            println schedule.place
+            schedule.startWeek = cmd.observationWeek
+            schedule.endWeek = cmd.observationWeek
+            schedule.save()
+        }
         form.observer = isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(securityService.userId)
         form.lectureWeek = cmd.observationWeek
         form.totalSection = cmd.totalSection
@@ -103,6 +112,7 @@ class ObservationFormService {
         form.evaluateLevel = cmd.evaluateLevel
         form.evaluationText = cmd.evaluationText
         form.suggest = cmd.suggest
+        form.place = cmd.place
         form.status = cmd.status ?: 0
         form.updateOperator = userId
         form.updateDate = new Date()
