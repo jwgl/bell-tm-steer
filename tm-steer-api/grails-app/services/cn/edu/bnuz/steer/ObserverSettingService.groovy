@@ -101,4 +101,12 @@ order by t.id desc
             form.delete()
         }
     }
+
+    def findDeptOfObserver(Integer termId) {
+        Observer.executeQuery'''
+select distinct s.department.id
+from Observer s join s.teacher t
+where s.termId = :termId and s.observerType = 2 and t.id = :userId 
+''',[termId: termId, userId: securityService.userId]
+    }
 }

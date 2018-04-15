@@ -20,23 +20,25 @@ class ObservationFormService {
     SecurityService securityService
 
     ObservationForm create(String userId, ObservationFormCommand cmd) {
-        //防止重复录入
-        ObservationForm form =
-            ObservationForm.findByObserverAndSupervisorDateAndPlace(
-                Teacher.load(userId),
-                cmd.supervisorDate,
-                cmd.place
-            )
-        if (form) {
-            throw new BadRequestException()
-        }
         def isAdmin = observerSettingService.isAdmin()
         if (isAdmin && !cmd.observerId) {
             throw new BadRequestException()
         }
+        //防止重复录入
+        ObservationForm form =
+            ObservationForm.findByObserverAndTeacherAndSupervisorDateAndPlaceAndStartSection(
+                Teacher.load(isAdmin ? cmd.observerId : securityService.userId),
+                Teacher.load(cmd.teacherId),
+                cmd.supervisorDate,
+                cmd.place,
+                cmd.startSection
+            )
+        if (form) {
+            throw new BadRequestException()
+        }
         def now = new Date()
         form = new ObservationForm(
-            observer: isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(userId),
+            observer: isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(securityService.userId),
             teacher: Teacher.load(cmd.teacherId),
             dayOfWeek: cmd.dayOfWeek,
             startSection: cmd.startSection,
@@ -59,6 +61,7 @@ class ObservationFormService {
             evaluationText: cmd.evaluationText,
             suggest:  cmd.suggest,
             operator: isAdmin ? userId : null,
+            isScheduleTemp: cmd.isScheduleTemp,
             termId: termService.activeTerm.id,
             observationCriteria: ObservationCriteria.findByActiveted(true)
         )
@@ -73,17 +76,27 @@ class ObservationFormService {
     }
 
     ObservationForm  update(String userId, ObservationFormCommand cmd) {
-
+        def isAdmin = observerSettingService.isAdmin()
         ObservationForm form = ObservationForm.get(cmd.id)
         if (!form) {
             throw new NotFoundException()
         }
-        if (form.observer.id != userId && !observerSettingService.isAdmin()) {
+        if (form.observer.id != userId && !isAdmin) {
             throw new ForbiddenException()
         }
         if (this.cantUpdate(form)){
             return null
         }
+        // 如果是未安排实践课，需要同步修改TaskScheduleTemp表中的起止周
+        if (form.isScheduleTemp) {
+            def schedule = TaskScheduleTemp.findByCreatorAndTeacherAndDayOfWeekAndStartWeek(
+                    form.observer, form.teacher, form.dayOfWeek, form.lectureWeek)
+            println schedule.place
+            schedule.startWeek = cmd.observationWeek
+            schedule.endWeek = cmd.observationWeek
+            schedule.save()
+        }
+        form.observer = isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(securityService.userId)
         form.lectureWeek = cmd.observationWeek
         form.totalSection = cmd.totalSection
         form.teachingMethods = cmd.teachingMethods
@@ -99,6 +112,7 @@ class ObservationFormService {
         form.evaluateLevel = cmd.evaluateLevel
         form.evaluationText = cmd.evaluationText
         form.suggest = cmd.suggest
+        form.place = cmd.place
         form.status = cmd.status ?: 0
         form.updateOperator = userId
         form.updateDate = new Date()
@@ -128,13 +142,14 @@ select new map(
   view.dayOfWeek as dayOfWeek,
   view.startSection as startSection,
   view.totalSection as totalSection,
+  view.formTotalSection as formTotalSection,
   view.courseName as course,
   view.placeName as place
 )
 from ObservationView view
 where view.supervisorId like :userId
   and view.termId = :termId
-order by view.supervisorDate
+order by view.supervisorDate desc
 ''', [userId: isAdmin ? '%' : userId, termId: termId ?: term.id]
         return [isAdmin : isAdmin,
                 list: result,
@@ -302,7 +317,12 @@ order by view.supervisorDate
                 week        : form.lectureWeek,
                 timeslot    : form.dayOfWeek * 10000 + form.startSection * 100,
         )
-        def result = timeslotService.timeslot(cmd)
+        def result
+        if (form.isScheduleTemp) {
+            result = timeslotService.timeslotForScheduleTemp(cmd)
+        } else {
+            result = timeslotService.timeslot(cmd)
+        }
         if (!result){
             throw new BadRequestException()
         }

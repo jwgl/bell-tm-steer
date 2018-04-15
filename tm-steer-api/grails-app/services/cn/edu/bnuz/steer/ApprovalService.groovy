@@ -88,13 +88,12 @@ where view.termId = :termId
         return null
     }
 
-
     def feed(ApprovalController.FeedItems cmd) {
         cmd.ids.each { id->
             def form = ObservationForm.get(id)
             if (form) {
                 def isAdmin = observerSettingService.isAdmin()
-                if (!isAdmin && securityService.departmentId != form.observer.department.id) {
+                if (!isAdmin && Teacher.load(securityService.userId).department.name != findDepartmentName(id)) {
                     throw new ForbiddenException()
                 }
                 if (form.status != 1) {
@@ -103,6 +102,15 @@ where view.termId = :termId
                 form.setStatus(2)
                 form.save()
             }
+        }
+    }
+
+    private findDepartmentName(Long id) {
+        def view = ObservationView.executeQuery '''
+select view.departmentName from ObservationView view where view.id = :id
+''',[id: id]
+        if (view) {
+            return view[0]
         }
     }
 }

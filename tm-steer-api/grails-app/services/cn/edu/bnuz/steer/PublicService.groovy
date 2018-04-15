@@ -31,7 +31,7 @@ select new map(
 )
 from ObservationPublic form
 where form.teacherId = :userId
-order by form.supervisorDate
+order by form.supervisorDate desc
 ''', [userId: userId]
     }
 

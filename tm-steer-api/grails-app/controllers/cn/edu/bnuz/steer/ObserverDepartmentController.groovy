@@ -45,12 +45,6 @@ class ObserverDepartmentController {
         );
     }
 
-    def teachers() {
-        String query = params.q
-        renderJson(observerDepartmentService.findTeacher(query, securityService.departmentId))
-
-    }
-
     def countByObserver() {
         renderJson(observerDepartmentService.countByObserver(securityService.departmentId))
     }

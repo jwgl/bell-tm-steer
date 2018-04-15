@@ -18,6 +18,7 @@ class UrlMappings {
             collection {
                 "/observe-priority"(controller: 'report', action: 'observePriority', method: 'GET')
                 "/reward"(controller: 'report', action: 'reward', method: 'GET')
+                "/wages"(controller: 'report', action: 'wages', method: 'GET')
             }
         }
 
@@ -37,6 +38,7 @@ class UrlMappings {
 
         "/departments"(resources: 'department', includes: []){
             "/settings"(resources: 'observerDepartment')
+            "/wages"(controller: 'observerDepartment', action: 'wages', method: 'GET')
         }
 
         "/"(view:"/index")

@@ -5,11 +5,16 @@ class UrlMappings {
     static mappings = {
         "/places"(resources: "placeTimeslot", includes: ['index', 'show'])
 
-        "/teachers"(resources: "teacher", includes: []) {
+        "/teachers"(resources: "teacher") {
             "/timeslots"(resources: "teacherTimeslot",includes: ['index', 'show'])
         }
 
         "/schedules"(resources: "schedule")
+        "/unschedules"(resources: "taskScheduleTempForm"){
+            collection {
+                "/findtask"(controller: 'taskScheduleTempForm', action: 'findTask', method: 'GET')
+            }
+        }
 
         "/users"(resources: 'user') {
             "/observations"(resources: "observationForm"){

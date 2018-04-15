@@ -14,6 +14,7 @@ class TeacherTimeslotController {
     def index(String teacherId) {
         def term = termService.activeTerm
         def schedules = scheduleService.getTeacherSchedules(teacherId, term.id)
+        scheduleService.observationPermission(schedules)
         renderJson([schedules: schedules])
     }
 
@@ -29,6 +30,7 @@ class TeacherTimeslotController {
         def isAdmin = observerSettingService.isAdmin()
         def type = isAdmin ? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
         def timeslot = timeslotService.timeslot(cmd)
+
         renderJson([
             term : [
                 startWeek  : term.startWeek,

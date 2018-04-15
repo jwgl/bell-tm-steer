@@ -27,6 +27,7 @@ class ObservationFormCommand {
     String                  observerId
     Integer                 dayOfWeek
     Integer                 startSection
+    Boolean                 isScheduleTemp
 
     class EvaluationsItem {
         Integer id
