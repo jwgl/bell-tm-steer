@@ -5,6 +5,7 @@ class ObservationPriority {
     String teacherName
     String departmentName
     String academicTitle
+    String courseName
     String isnew
     String hasSupervisor
 
