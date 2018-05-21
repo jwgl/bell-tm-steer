@@ -70,7 +70,7 @@ where view.termId = :termId
         def form = ObservationForm.get(id)
         if (form) {
             def isAdmin = observerSettingService.isAdmin()
-            if (!isAdmin && form.teacher.department.id != securityService.departmentId) {
+            if (!isAdmin && form.observer.department.id != securityService.departmentId) {
                 throw new BadRequestException()
             }
             def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id)
