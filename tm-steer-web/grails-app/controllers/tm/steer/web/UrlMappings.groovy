@@ -4,7 +4,7 @@ class UrlMappings {
 
     static mappings = {
 
-        "/users"(resources: 'user', includes: []) {
+        "/observers"(resources: 'user', includes: []) {
             "/observations"(resources: 'observationForm', includes: ['index','show'])
         }
 

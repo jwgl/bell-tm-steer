@@ -1,6 +1,6 @@
 menuGroup 'main', {
     steer 30,{
-        observationForm       10, 'PERM_OBSERVATION_WRITE', '/web/steer/users/${userId}/observations'
+        observationForm       10, 'PERM_OBSERVATION_WRITE', '/web/steer/observers/${userId}/observations'
         observationApproval   11, 'PERM_OBSERVATION_DEPT_APPROVE', '/web/steer/approvers/${userId}/observations'
         observationReport     12, 'PERM_OBSERVATION_WRITE', '/web/steer/reports'
         observationLegacy     13, 'PERM_OBSERVER_ADMIN', '/web/steer/legacies'
