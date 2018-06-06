@@ -5,13 +5,7 @@ class UrlMappings {
     static mappings = {
 
         "/users"(resources: 'user', includes: []) {
-            "/observations"(resources: 'observationForm', includes: ['index','show']){
-                collection {
-                    "/schedules"(resources: 'schedule', includes: ['index'])
-                    "/teachers"(controller: 'schedule', action: 'teacher', method: 'GET')
-                    "/places"(controller: 'schedule',  action: 'places', method: 'GET')
-                }
-            }
+            "/observations"(resources: 'observationForm', includes: ['index','show'])
         }
 
         "/reports"(resources: 'report', includes: ['index','show']){
@@ -26,18 +20,22 @@ class UrlMappings {
             "/observations"(resources: 'approval', includes: ['index'])
         }
 
-        "/publics"(resources: 'public', includes: ['index']){
-            collection {
-                "/legacies"(controller: 'public', action: 'legacies', method: 'GET')
-            }
+        "/teachers"(resources: 'teacher', includes: []) {
+            "/observations"(resources: 'public', includes: ['index'])
         }
 
-        "/settings"(resources: 'observerSetting', includes: ['index'])
+        group "/settings", {
+            "/observers"(resources: 'observerSetting', includes: ['index'])
+        }
 
         "/legacies"(resources:'legacyData')
 
         "/departments"(resources: 'department', includes: []){
-            "/settings"(resources: 'observerDepartment')
+            "/settings"(resources: 'setting', includes:[]) {
+                collection {
+                    "/observers"(resources: 'observerDepartment')
+                }
+            }
             "/wages"(controller: 'observerDepartment', action: 'wages', method: 'GET')
         }
 
