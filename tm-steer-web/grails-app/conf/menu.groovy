@@ -11,6 +11,5 @@ menuGroup 'main', {
     settings 90, {
         observers             40, 'PERM_OBSERVER_ADMIN', '/web/steer/settings/observers'
         deptObserver          41, 'PERM_OBSERVER_DEPT_ADMIN',  '/web/steer/departments/${departmentId}/settings/observers'
-
     }
 }

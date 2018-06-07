@@ -13,6 +13,7 @@ class UrlMappings {
                 "/observe-priority"(controller: 'report', action: 'observePriority', method: 'GET')
                 "/reward"(controller: 'report', action: 'reward', method: 'GET')
                 "/wages"(controller: 'report', action: 'wages', method: 'GET')
+                "/departmentWages"(controller: 'observerDepartment', action: 'wages', method: 'GET')
             }
         }
 
@@ -30,15 +31,13 @@ class UrlMappings {
 
         "/legacies"(resources:'legacyData')
 
-        "/departments"(resources: 'department', includes: []){
-            "/settings"(resources: 'setting', includes:[]) {
+        "/departments"(resources: 'department', includes: []) {
+            "/settings"(resources: 'setting', includes: []) {
                 collection {
                     "/observers"(resources: 'observerDepartment')
                 }
             }
-            "/wages"(controller: 'observerDepartment', action: 'wages', method: 'GET')
         }
-
         "/"(view:"/index")
         "500"(view:'/error')
         "404"(view:'/notFound')
