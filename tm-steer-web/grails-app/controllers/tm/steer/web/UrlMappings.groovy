@@ -4,14 +4,8 @@ class UrlMappings {
 
     static mappings = {
 
-        "/users"(resources: 'user', includes: []) {
-            "/observations"(resources: 'observationForm', includes: ['index','show']){
-                collection {
-                    "/schedules"(resources: 'schedule', includes: ['index'])
-                    "/teachers"(controller: 'schedule', action: 'teacher', method: 'GET')
-                    "/places"(controller: 'schedule',  action: 'places', method: 'GET')
-                }
-            }
+        "/observers"(resources: 'user', includes: []) {
+            "/observations"(resources: 'observationForm', includes: ['index','show'])
         }
 
         "/reports"(resources: 'report', includes: ['index','show']){
@@ -19,6 +13,7 @@ class UrlMappings {
                 "/observe-priority"(controller: 'report', action: 'observePriority', method: 'GET')
                 "/reward"(controller: 'report', action: 'reward', method: 'GET')
                 "/wages"(controller: 'report', action: 'wages', method: 'GET')
+                "/departmentWages"(controller: 'observerDepartment', action: 'wages', method: 'GET')
             }
         }
 
@@ -26,21 +21,23 @@ class UrlMappings {
             "/observations"(resources: 'approval', includes: ['index'])
         }
 
-        "/publics"(resources: 'public', includes: ['index']){
-            collection {
-                "/legacies"(controller: 'public', action: 'legacies', method: 'GET')
-            }
+        "/teachers"(resources: 'teacher', includes: []) {
+            "/observations"(resources: 'public', includes: ['index'])
         }
 
-        "/settings"(resources: 'observerSetting', includes: ['index'])
+        group "/settings", {
+            "/observers"(resources: 'observerSetting', includes: ['index'])
+        }
 
         "/legacies"(resources:'legacyData')
 
-        "/departments"(resources: 'department', includes: []){
-            "/settings"(resources: 'observerDepartment')
-            "/wages"(controller: 'observerDepartment', action: 'wages', method: 'GET')
+        "/departments"(resources: 'department', includes: []) {
+            "/settings"(resources: 'setting', includes: []) {
+                collection {
+                    "/observers"(resources: 'observerDepartment')
+                }
+            }
         }
-
         "/"(view:"/index")
         "500"(view:'/error')
         "404"(view:'/notFound')

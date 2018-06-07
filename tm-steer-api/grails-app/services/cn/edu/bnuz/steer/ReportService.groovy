@@ -88,6 +88,7 @@ ta.teacherId as teacherId,
 ta.teacherName as teacherName,
 ta.academicTitle as academicTitle,
 ta.departmentName as departmentName,
+ta.courseName as courseName,
 ta.isnew as isnew
 )
 from ObservationPriority ta
