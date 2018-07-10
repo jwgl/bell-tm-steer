@@ -23,6 +23,9 @@ class ApprovalService {
         def isAdmin = observerSettingService.isAdmin()
         def dept = isAdmin ? "%" : Teacher.load(securityService.userId).department.name
         List<Integer> types = isAdmin ? [1, 3] : [2]
+        if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
+            types = [1]
+        }
         def result = ObservationView.executeQuery '''
 select new map(
   view.id as id,
