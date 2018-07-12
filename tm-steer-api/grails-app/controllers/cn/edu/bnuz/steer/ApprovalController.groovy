@@ -7,7 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 /**
  * 教学院长发布学院督导听课
  */
-@PreAuthorize('hasAuthority("PERM_OBSERVATION_DEPT_APPROVE")')
+@PreAuthorize('hasAuthority("PERM_OBSERVATION_APPROVE")')
 class ApprovalController {
     ApprovalService approvalService
     TermService termService

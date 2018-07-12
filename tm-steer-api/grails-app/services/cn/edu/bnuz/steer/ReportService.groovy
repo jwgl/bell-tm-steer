@@ -14,6 +14,7 @@ class ReportService {
         def result = ObservationView.executeQuery '''
 select new map(
   view.departmentName as departmentName,
+  sum(case view.status when 1 then 1 else 0 end) as unApproved,
   count(*) as supervisorTimes,
   sum(view.formTotalSection) as totalSection
 )
