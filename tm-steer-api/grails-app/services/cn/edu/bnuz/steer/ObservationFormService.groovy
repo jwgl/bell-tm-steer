@@ -159,12 +159,20 @@ where view.supervisorId like :userId
   and view.termId = :termId
 order by view.supervisorDate desc
 ''', [userId: isAdmin ? '%' : userId, termId: termId ?: term.id]
+<<<<<<< HEAD
                 // 督导组组长只负责校督导
                 if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
                     result = result.grep{
                         it.observerType == 1
                     }
                 }
+=======
+        // 督导组组长只负责校督导
+        if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
+            result = result.grep{
+                it.observerType == 1
+            }
+>>>>>>> upstream/master
         }
         return [isAdmin : isAdmin,
                 list: result,
