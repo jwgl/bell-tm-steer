@@ -27,7 +27,7 @@ class TeacherTimeslotController {
             timeslot    : id,
         )
         def term = termService.activeTerm
-        def isAdmin = observerSettingService.isAdmin()
+        def isAdmin = securityService.hasRole("ROLE_OBSERVATION_ADMIN")
         def type = isAdmin ? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
         def timeslot = timeslotService.timeslot(cmd)
 

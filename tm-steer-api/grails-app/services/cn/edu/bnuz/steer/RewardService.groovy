@@ -66,7 +66,7 @@ where id in(
 select v.id from ObservationView v
 where v.termId = :termId and v.status > 0
 and substring(v.supervisorDate,6,2) = :month
-and v.observerType = 1
+and v.observerType = 1 and v.rewardDate is null
 )
 ''',[termId: term.id, month: month]
     }

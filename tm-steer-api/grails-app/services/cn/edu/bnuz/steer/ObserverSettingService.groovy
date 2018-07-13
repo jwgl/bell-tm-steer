@@ -63,7 +63,8 @@ where s.termId = :termId and t.id = :userId
     }
 
     def isAdmin(){
-        return securityService.hasRole("ROLE_OBSERVATION_ADMIN")
+        return securityService.hasRole("ROLE_OBSERVATION_ADMIN") ||
+                securityService.hasRole("ROLE_OBSERVER_CAPTAIN")
     }
 
     def findRolesByUserIdAndTerm(String userId, Integer termId){

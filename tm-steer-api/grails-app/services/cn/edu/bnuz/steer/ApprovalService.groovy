@@ -6,6 +6,8 @@ import cn.edu.bnuz.bell.master.Term
 import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
+import cn.edu.bnuz.bell.security.UserLogService
+import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 
 @Transactional
@@ -15,11 +17,15 @@ class ApprovalService {
     ObservationFormService observationFormService
     ObserverSettingService observerSettingService
     SecurityService securityService
+    UserLogService userLogService
 
     def list(Integer termId, Integer status) {
         def isAdmin = observerSettingService.isAdmin()
         def dept = isAdmin ? "%" : Teacher.load(securityService.userId).department.name
         List<Integer> types = isAdmin ? [1, 3] : [2]
+        if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
+            types = [1]
+        }
         def result = ObservationView.executeQuery '''
 select new map(
   view.id as id,
@@ -103,6 +109,7 @@ where view.termId = :termId
                 form.save()
             }
         }
+        userLogService.log(securityService.userId,securityService.ipAddress,"APPROVE",1 ,"${cmd.ids as JSON}")
     }
 
     private findDepartmentName(Long id) {
