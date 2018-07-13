@@ -15,10 +15,17 @@ class ObservationFormController {
 
     def index() { }
     def show(Long id) {
-        if (securityService.hasRole("ROLE_OBSERVATION_ADMIN") || !id ){
+        if (securityService.hasRole("ROLE_OBSERVATION_ADMIN") && id ){
             report(new ReportRequest(
                     reportService: 'tm-report',
                     reportName: 'steer-observations-all',
+                    format: 'xlsx',
+                    parameters: [termId: id]
+            ))
+        } else if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN") && id ){
+            report(new ReportRequest(
+                    reportService: 'tm-report',
+                    reportName: 'steer-list-for-captain',
                     format: 'xlsx',
                     parameters: [termId: id]
             ))
