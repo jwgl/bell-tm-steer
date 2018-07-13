@@ -26,6 +26,31 @@ class ApprovalService {
         if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
             types = [1]
         }
+        def result = list(dept, types, termId, status)
+        def terms = Term.findAll("from Term t order by t.id desc")
+        if (!isAdmin && securityService.departmentId in ["21", "17"]) {
+            def otherResult = list(observerSettingService.otherDepartment, types, termId, status)
+            return [
+                    term:           terms,
+                    activeTermId:   termId,
+                    counts:         [
+                                        done: result.counts.done + otherResult.counts.done,
+                                        todo: result.counts.todo + otherResult.counts.todo
+                                    ],
+                    list:           result.list + otherResult.list
+            ]
+        } else {
+            return [
+                    term:           terms,
+                    activeTermId:   termId,
+                    counts:         result.counts,
+                    list:           result.list
+            ]
+        }
+
+    }
+
+    def list(String dept, List<Integer> types, Integer termId, Integer status) {
         def result = ObservationView.executeQuery '''
 select new map(
   view.id as id,
@@ -65,10 +90,11 @@ where view.termId = :termId
   and view.departmentName like :dept
 ''', [dept: dept, types: types, termId: termId ]
         return [
-            term:           Term.findAll("from Term t order by t.id desc"),
-            activeTermId:   termId,
-            counts:         counts[0],
-            list:           result
+                counts:         [
+                                    done: counts[0].done ?: 0,
+                                    todo: counts[0].todo ?: 0
+                                ],
+                list:           result
         ]
     }
 
@@ -99,8 +125,14 @@ where view.termId = :termId
             def form = ObservationForm.get(id)
             if (form) {
                 def isAdmin = observerSettingService.isAdmin()
-                if (!isAdmin && Teacher.load(securityService.userId).department.name != findDepartmentName(id)) {
-                    throw new ForbiddenException()
+                if (!isAdmin) {
+                    def departmentSet = [Teacher.load(securityService.userId).department.name]
+                    if (securityService.departmentId in ["21", "17"]) {
+                        departmentSet += [observerSettingService.otherDepartment]
+                        if (!(findDepartmentName(id) in departmentSet)) {
+                            throw new ForbiddenException()
+                        }
+                    }
                 }
                 if (form.status != 1) {
                     throw new BadRequestException()
@@ -112,7 +144,7 @@ where view.termId = :termId
         userLogService.log(securityService.userId,securityService.ipAddress,"APPROVE",1 ,"${cmd.ids as JSON}")
     }
 
-    private findDepartmentName(Long id) {
+    String findDepartmentName(Long id) {
         def view = ObservationView.executeQuery '''
 select view.departmentName from ObservationView view where view.id = :id
 ''',[id: id]
