@@ -1,5 +1,9 @@
 package cn.edu.bnuz.steer
 
+import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.report.ReportClientService
+import cn.edu.bnuz.bell.report.ReportRequest
+import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.bell.workflow.Event
 import org.springframework.security.access.prepost.PreAuthorize
 
@@ -9,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize
 @PreAuthorize('hasAuthority("PERM_OBSERVATION_WRITE")')
 class ObservationFormController {
     ObservationFormService observationFormService
+    ReportClientService reportClientService
+    SecurityService securityService
 
     def index(String userId) {
         Integer termId = params.getInt('termId')?:0
@@ -57,5 +63,22 @@ class ObservationFormController {
                 break
         }
         renderJson([ok:true])
+    }
+
+    def report(Integer termId) {
+        def reportName
+        if (securityService.hasRole("ROLE_OBSERVATION_ADMIN") || !termId ){
+            reportName = 'steer-observations-all'
+
+        } else if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN") && termId ){
+            reportName = 'steer-list-for-captain'
+        } else {
+            throw new ForbiddenException()
+        }
+        def reportRequest = new ReportRequest(
+                reportName: reportName,
+                parameters: [termId: termId]
+        )
+        reportClientService.runAndRender(reportRequest, response)
     }
 }

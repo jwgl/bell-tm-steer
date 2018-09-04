@@ -21,13 +21,21 @@ class UrlMappings {
                 collection {
                     "/term"(controller: 'schedule', action: 'getTerm', method: 'GET')
                     "/observationPriority"(controller: 'schedule', action: 'teacherActiveList', method: 'GET')
+                    "/report"(controller: 'observationForm', action: 'report', method: 'GET')
                 }
             }
         }
 
-        "/reports"(resources: "report")
+        "/reports"(resources: "report", includes: ['index', 'show']) {
+            collection {
+                "/observe-priority"(controller: 'report', action: 'observePriority', method: 'GET')
+                "/reward"(controller: 'report', action: 'reward', method: 'GET')
+                "/wages"(controller: 'report', action: 'wages', method: 'GET')
+                "/departmentWages"(controller: 'observerDepartment', action: 'wages', method: 'GET')
+            }
+        }
 
-        "/approvers"(resources: "approval",include: []){
+        "/approvers"(resources: "approval", includes: []){
             "/observations"(resources: "approval")
         }
 

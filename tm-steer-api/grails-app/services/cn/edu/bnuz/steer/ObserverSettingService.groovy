@@ -110,4 +110,9 @@ from Observer s join s.teacher t
 where s.termId = :termId and s.observerType = 2 and t.id = :userId 
 ''',[termId: termId, userId: securityService.userId]
     }
+
+    String getOtherDepartment() {
+        Map departmentMap = ["21": "公共体育教研部", "17": "数学教研部"]
+        return departmentMap[securityService.departmentId]
+    }
 }
