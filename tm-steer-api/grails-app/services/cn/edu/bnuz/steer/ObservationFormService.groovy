@@ -21,7 +21,12 @@ class ObservationFormService {
 
     ObservationForm create(String userId, ObservationFormCommand cmd) {
         def isAdmin = observerSettingService.isAdmin()
-        if (isAdmin && !cmd.observerId) {
+
+        // 暂时限定督导组组长只录入自己的
+        if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
+            cmd.observerId = securityService.userId
+        }
+        if (isAdmin && !cmd.observerId ) {
             throw new BadRequestException()
         }
         //防止重复录入
@@ -159,6 +164,7 @@ where view.supervisorId like :userId
   and view.termId = :termId
 order by view.supervisorDate desc
 ''', [userId: isAdmin ? '%' : userId, termId: termId ?: term.id]
+
             // 督导组组长只负责校督导
             if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
                 result = result.grep{
@@ -372,5 +378,4 @@ where view.termId = :termId and view.departmentName = :detp and view.status = 2
 order by view.supervisorDate desc
 ''', [detp: dept, termId: termId ?: term.id]
     }
-
 }

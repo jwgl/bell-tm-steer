@@ -3,6 +3,8 @@ package cn.edu.bnuz.steer
 import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.master.TermService
+import cn.edu.bnuz.bell.report.ReportClientService
+import cn.edu.bnuz.bell.report.ReportRequest
 import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 
@@ -14,6 +16,8 @@ class ObserverDepartmentController {
     ObserverSettingService observerSettingService
     SecurityService securityService
     ObserverDepartmentService observerDepartmentService
+    ReportClientService reportClientService
+
     TermService termService
     def index() {
         renderJson(observerDepartmentService.list(securityService.departmentId))
@@ -62,5 +66,16 @@ class ObserverDepartmentController {
         }
         observerSettingService.delete(id)
         renderOk()
+    }
+
+    def wages() {
+        Integer termId = params.int("termId") ?: 0
+        String departmentId = securityService.departmentId
+        Integer type = 2
+        def reportRequest = new ReportRequest(
+                reportName: 'steer-wages',
+                parameters: [term_id: termId, department_id: departmentId, type: type]
+        )
+        reportClientService.runAndRender(reportRequest, response)
     }
 }
