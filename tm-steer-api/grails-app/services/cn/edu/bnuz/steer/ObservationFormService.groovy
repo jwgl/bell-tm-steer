@@ -138,8 +138,8 @@ class ObservationFormService {
             if (securityService.departmentId in ["21", "17"]) {
                 result += listForDean(termId, observerSettingService.otherDepartment)
             }
-        } else {
-            result = ObservationView.executeQuery '''
+        }
+        def myObservation = ObservationView.executeQuery '''
 select new map(
   view.id as id,
   view.supervisorDate as supervisorDate,
@@ -164,12 +164,12 @@ where view.supervisorId like :userId
   and view.termId = :termId
 order by view.supervisorDate desc
 ''', [userId: isAdmin ? '%' : userId, termId: termId ?: term.id]
+        result = result ? result + myObservation : myObservation
 
-            // 督导组组长只负责校督导
-            if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
-                result = result.grep{
-                    it.observerType == 1
-                }
+        // 督导组组长只负责校督导
+        if (securityService.hasRole("ROLE_OBSERVER_CAPTAIN")) {
+            result = result.grep{
+                it.observerType == 1
             }
         }
         return [isAdmin : isAdmin,
