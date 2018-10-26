@@ -27,7 +27,6 @@ class ObservationView {
     Integer lateStds
     Integer attendantStds
     Integer leaveStds
-    String  operator
     Integer observerType
     String  courseClassName
     String  departmentName

@@ -2,6 +2,7 @@ package cn.edu.bnuz.bell.steer
 
 import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.report.ReportClientService
 import cn.edu.bnuz.bell.report.ReportRequest
 import cn.edu.bnuz.bell.security.SecurityService
@@ -49,12 +50,22 @@ class ReportController {
     }
 
     def show(Long id) {
-        def reportRequest = new ReportRequest(
-                reportName: 'steer-observation-detail',
-                format: 'pdf',
-                parameters: [idKey:'formId', formId: id, userId: securityService.userId]
-        )
-        reportClientService.runAndRender(reportRequest, response)
+        def form = ObservationView.load(id)
+        def departmentName = Teacher.load(securityService.userId).department.name
+        if (!form) {
+            renderNotFound()
+        } else if (form.supervisorId == securityService.userId ||
+                (securityService.hasRole('ROLE_DEAN_OF_TEACHING') && departmentName == form.departmentName) ||
+                securityService.hasRole('ROLE_OBSERVATION_ADMIN')) {
+            def reportRequest = new ReportRequest(
+                    reportName: 'steer-observation-detail',
+                    format: 'pdf',
+                    parameters: [idKey:'formId', formId: id, userId: securityService.userId]
+            )
+            reportClientService.runAndRender(reportRequest, response)
+        } else {
+            renderForbidden()
+        }
     }
 
     def observePriority() {
