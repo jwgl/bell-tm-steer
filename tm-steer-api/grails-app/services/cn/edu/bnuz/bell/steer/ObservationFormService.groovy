@@ -103,7 +103,9 @@ class ObservationFormService {
             schedule.endWeek = cmd.observationWeek
             schedule.save()
         }
-        form.observer = isAdmin ? Teacher.load(cmd.observerId) : Teacher.load(securityService.userId)
+        if (securityService.hasRole("ROLE_OBSERVATION_ADMIN")) {
+            form.observer = Teacher.load(cmd.observerId)
+        }
         form.lectureWeek = cmd.observationWeek
         form.totalSection = cmd.totalSection
         form.teachingMethods = cmd.teachingMethods
@@ -201,19 +203,20 @@ order by view.supervisorDate desc
                 }
             }
             return [
-                    form             : getFormInfo(form),
+                    form: getFormInfo(form),
                     term : [
-                            startWeek   : term.startWeek,
-                            maxWeek     : term.maxWeek,
-                            currentWeek : term.currentWorkWeek,
-                            startDate   : term.startDate,
-                            swapDates   : term.swapDates,
-                            endWeek     : term.endWeek,
+                            startWeek: term.startWeek,
+                            maxWeek: term.maxWeek,
+                            currentWeek: term.currentWorkWeek,
+                            startDate: term.startDate,
+                            swapDates: term.swapDates,
+                            endWeek: term.endWeek,
                     ],
-                    types               : type,
-                    evaluationSystem : evaluationSystem,
-                    isAdmin          : isAdmin,
-                    observers         : isAdmin ? observerSettingService.findCurrentObservers(term.id) : null
+                    types: type,
+                    evaluationSystem: evaluationSystem,
+                    isAdmin: isAdmin,
+                    isCaptain: securityService.hasRole("ROLE_OBSERVER_CAPTAIN"),
+                    observers: securityService.hasRole("ROLE_OBSERVATION_ADMIN") ? observerSettingService.findCurrentObservers(term.id) : null
             ]
         }
         return null
