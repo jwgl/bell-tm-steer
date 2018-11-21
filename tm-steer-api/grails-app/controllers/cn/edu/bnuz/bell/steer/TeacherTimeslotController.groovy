@@ -1,6 +1,7 @@
 package cn.edu.bnuz.bell.steer
 
 import cn.edu.bnuz.bell.master.TermService
+import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.steer.TeacherTimeslotCommand
 
@@ -31,21 +32,33 @@ class TeacherTimeslotController {
         def isAdmin = securityService.hasRole("ROLE_OBSERVATION_ADMIN")
         def type = isAdmin ? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(securityService.userId,term.id)
         def timeslot = timeslotService.timeslot(cmd)
+        ObservationForm form = null
+        if (!isAdmin && timeslot) {
+             form = ObservationForm.findByObserverAndTeacherAndLectureWeekAndDayOfWeekAndPlaceAndStartSection(
+                            Teacher.load(securityService.userId),
+                            Teacher.load(teacherId),
+                            cmd.week,
+                            cmd.dayOfWeek,
+                            timeslot[0].place as String,
+                            cmd.startSection
+                    )
+        }
 
         renderJson([
             term : [
-                startWeek  : term.startWeek,
-                maxWeek    : term.maxWeek,
+                startWeek: term.startWeek,
+                maxWeek: term.maxWeek,
                 currentWeek: term.currentWorkWeek,
-                startDate  : term.startDate,
-                swapDates  : term.swapDates,
-                endWeek    : term.endWeek,
+                startDate: term.startDate,
+                swapDates: term.swapDates,
+                endWeek: term.endWeek,
             ],
-            timeslot            : timeslot,
-            types               : type,
-            evaluationSystem    : observationCriteriaService.observationCriteria,
-            isAdmin             : isAdmin,
-            observers           : isAdmin ? observerSettingService.findCurrentObservers(term.id) : null
+            timeslot: timeslot,
+            types: type,
+            evaluationSystem: observationCriteriaService.observationCriteria,
+            isAdmin: isAdmin,
+            observers: isAdmin ? observerSettingService.findCurrentObservers(term.id) : null,
+            formId: form?.id
         ])
     }
 }
