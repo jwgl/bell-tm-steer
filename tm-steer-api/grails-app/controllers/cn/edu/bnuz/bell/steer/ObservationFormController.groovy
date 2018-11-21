@@ -1,6 +1,7 @@
 package cn.edu.bnuz.bell.steer
 
 import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.http.ServiceExceptionHandler
 import cn.edu.bnuz.bell.report.ReportClientService
 import cn.edu.bnuz.bell.report.ReportRequest
 import cn.edu.bnuz.bell.security.SecurityService
@@ -12,7 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize
  * 本学期督导听课记录
  */
 @PreAuthorize('hasAuthority("PERM_OBSERVATION_WRITE")')
-class ObservationFormController {
+class ObservationFormController implements ServiceExceptionHandler{
     ObservationFormService observationFormService
     ReportClientService reportClientService
     SecurityService securityService

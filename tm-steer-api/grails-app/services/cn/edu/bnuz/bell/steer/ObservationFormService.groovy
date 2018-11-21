@@ -29,7 +29,7 @@ class ObservationFormService {
             cmd.observerId = securityService.userId
         }
         if (isAdmin && !cmd.observerId ) {
-            throw new BadRequestException()
+            throw new BadRequestException("没有指定督导！")
         }
         //防止重复录入
         ObservationForm form =
@@ -41,7 +41,7 @@ class ObservationFormService {
                 cmd.startSection
             )
         if (form) {
-            throw new BadRequestException()
+            throw new BadRequestException("重复录入！")
         }
         def now = new Date()
         form = new ObservationForm(
