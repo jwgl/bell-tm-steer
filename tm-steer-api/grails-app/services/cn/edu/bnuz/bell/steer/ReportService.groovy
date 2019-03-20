@@ -90,7 +90,8 @@ ta.teacherName as teacherName,
 ta.academicTitle as academicTitle,
 ta.departmentName as departmentName,
 ta.courseName as courseName,
-ta.isnew as isnew
+ta.isnew as isnew,
+ta.isExternal as isExternal
 )
 from ObservationPriority ta
 where ta.hasSupervisor is null

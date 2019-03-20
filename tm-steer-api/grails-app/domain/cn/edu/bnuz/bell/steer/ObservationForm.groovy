@@ -22,6 +22,10 @@ class ObservationForm {
     Integer totalSection
     String  evaluationText
     String  teachingMethods
+    /**
+     * 教学形式类别，与评分体系共同决定当前采用的评分细则
+     */
+    Integer method
     String  suggest
     BigDecimal   evaluateLevel
     Date    rewardDate
@@ -39,6 +43,18 @@ class ObservationForm {
     Date    updateDate
     ObservationCriteria     observationCriteria
     Boolean isScheduleTemp
+    /**
+     * 推荐类型：1典型事例，2观摩课
+     */
+    Integer recommend
+    /**
+     * 推荐理由
+     */
+    String recommendReason
+    /**
+     * 教学环境
+     */
+    String teachingEnvironment
 
     static hasMany = [observationItem:ObservationItem]
 
@@ -74,6 +90,10 @@ class ObservationForm {
         updateDate          comment: '最后修改日期'
         observationCriteria comment: '采用评分体系'
         isScheduleTemp      comment: '是否无时间地点排课'
+        method              comment: '教学形式类别'
+        recommend           comment: '推荐类型'
+        recommendReason     type: 'text', comment: '推荐原因'
+        teachingEnvironment type: 'text', comment: '教学环境设备情况及建议'
     }
 
     static constraints = {
@@ -99,5 +119,14 @@ class ObservationForm {
         dayOfWeek           nullable: true
         startSection        nullable: true
         isScheduleTemp      nullable: true
+        method              nullable: true
+        recommend           nullable: true
+        recommendReason     nullable: true
+        teachingEnvironment nullable: true
+    }
+
+    def methodLable() {
+        def labels = [1: '教师讲授', 2: '学生讨论汇报', 3: '教师讲授+学生讨论汇报', 4: '其他']
+        return labels[this.method]
     }
 }

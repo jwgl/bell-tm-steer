@@ -32,6 +32,7 @@ class ObservationView {
     String  departmentName
     String  courseName
     Integer termId
+    Integer recommend
 
     static mapping = {
         table 'dv_observation_view'

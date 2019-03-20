@@ -8,6 +8,7 @@ class ObservationPriority {
     String courseName
     String isnew
     String hasSupervisor
+    Boolean isExternal
 
     static mapping = {
         table 'dv_observation_priority'

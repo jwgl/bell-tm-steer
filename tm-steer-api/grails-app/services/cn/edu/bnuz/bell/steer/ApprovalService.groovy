@@ -105,7 +105,7 @@ where view.termId = :termId
             if (!isAdmin && form.observer.department.id != securityService.departmentId) {
                 throw new BadRequestException()
             }
-            def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria?.id)
+            def evaluationSystem = observationCriteriaService.getObservationCriteriaByIdAndMethod(form.observationCriteria?.id, form.method)
             evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form).value

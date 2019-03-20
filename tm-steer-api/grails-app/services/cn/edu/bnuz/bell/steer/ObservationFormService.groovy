@@ -52,6 +52,10 @@ class ObservationFormService {
             lectureWeek: cmd.observationWeek,
             totalSection: cmd.totalSection,
             teachingMethods: cmd.teachingMethods,
+            method: cmd.method,
+            recommend: cmd.recommend,
+            recommendReason: cmd.recommendReason,
+            teachingEnvironment: cmd.teachingEnvironment,
             supervisorDate: cmd.supervisorDate,
             recordDate: now,
             observerType: cmd.observerType,
@@ -98,7 +102,6 @@ class ObservationFormService {
         if (form.isScheduleTemp) {
             def schedule = TaskScheduleTemp.findByCreatorAndTeacherAndDayOfWeekAndStartWeek(
                     form.observer, form.teacher, form.dayOfWeek, form.lectureWeek)
-            println schedule.place
             schedule.startWeek = cmd.observationWeek
             schedule.endWeek = cmd.observationWeek
             schedule.save()
@@ -125,6 +128,10 @@ class ObservationFormService {
         form.status = cmd.status ?: 0
         form.updateOperator = userId
         form.updateDate = new Date()
+        form.method = cmd.method
+        form.recommend = cmd.recommend
+        form.recommendReason = cmd.recommendReason
+        form.teachingEnvironment = cmd.teachingEnvironment
         cmd.evaluations.each { item ->
             def evaluation = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id),form)
             evaluation.value = item.value
@@ -161,7 +168,8 @@ select new map(
   view.totalSection as totalSection,
   view.formTotalSection as formTotalSection,
   view.courseName as course,
-  view.placeName as place
+  view.placeName as place,
+  view.recommend as recommend
 )
 from ObservationView view
 where view.supervisorId like :userId
@@ -196,7 +204,7 @@ order by view.supervisorDate desc
             def term = termService.activeTerm
             def isAdmin = observerSettingService.isAdmin()
             def type = isAdmin? [1,2,3]:observerSettingService.findRolesByUserIdAndTerm(userId,term.id)
-            def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria.id)
+            def evaluationSystem = observationCriteriaService.getObservationCriteriaByIdAndMethod(form.observationCriteria.id, realMethod(form.method))
             evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form).value
@@ -232,7 +240,7 @@ order by view.supervisorDate desc
             ) {
                 throw new ForbiddenException()
             }
-            def evaluationSystem = observationCriteriaService.getObservationCriteriaById(form.observationCriteria.id)
+            def evaluationSystem = observationCriteriaService.getObservationCriteriaByIdAndMethod(form.observationCriteria.id, realMethod(form.method))
             evaluationSystem.each { group ->
                 group.value.each { item ->
                     item.value = ObservationItem.findByObservationCriteriaItemAndObservationForm(ObservationCriteriaItem.load(item.id), form).value
@@ -316,7 +324,7 @@ order by view.supervisorDate desc
                 teacherName: form.teacher.name,
                 observationWeek: form.lectureWeek,
                 totalSection: form.totalSection,
-                teachingMethods: form.teachingMethods,
+                teachingMethods: form.teachingMethods ?: form.methodLable(),
                 supervisorDate: form.supervisorDate,
                 observerType: form.observerType,
                 place: form.place,
@@ -333,6 +341,10 @@ order by view.supervisorDate desc
                 status: form.status,
                 isActive: form.termId == termService.activeTerm.id,
                 timeslot: getFormTimeslot(form),
+                method: form.method,
+                recommend: form.recommend,
+                recommendReason: form.recommendReason,
+                teachingEnvironment: form.teachingEnvironment,
         ]
     }
 
@@ -383,5 +395,9 @@ from ObservationView view
 where view.termId = :termId and view.departmentName = :detp and view.status = 2
 order by view.supervisorDate desc
 ''', [detp: dept, termId: termId ?: term.id]
+    }
+
+    static Integer realMethod(Integer method) {
+        return method == 3 ? 2 : method
     }
 }
