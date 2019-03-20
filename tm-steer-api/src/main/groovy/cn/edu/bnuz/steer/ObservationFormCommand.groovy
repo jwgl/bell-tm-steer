@@ -28,6 +28,10 @@ class ObservationFormCommand {
     Integer                 dayOfWeek
     Integer                 startSection
     Boolean                 isScheduleTemp
+    Integer                 method
+    Integer                 recommend
+    String                  recommendReason
+    String                  teachingEnvironment
 
     class EvaluationsItem {
         Integer id
