@@ -24,6 +24,7 @@ class UrlMappings {
                     "/report"(controller: 'observationForm', action: 'report', method: 'GET')
                 }
             }
+            "/deans"(resources: "deanTeaching")
         }
 
         "/reports"(resources: "report", includes: ['index', 'show']) {
