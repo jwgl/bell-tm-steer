@@ -43,7 +43,7 @@ order by form.supervisorDate desc
                 throw new BadRequestException()
             }
             def schedule = [
-                    evaluationSystem: observationCriteriaService.getObservationCriteriaByIdAndMethod(form.observationCriteria.id, form.method),
+                    evaluationSystem: observationCriteriaService.getObservationCriteriaByIdAndMethod(form.observationCriteria.id, observationFormService.realMethod(form.method)),
                     form: observationFormService.getFormInfo(form)
             ]
             schedule.evaluationSystem.each { group ->
