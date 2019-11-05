@@ -95,7 +95,7 @@ where courseClass.term.id = :termId
   and department.id like :department
   and :weekOfTerm >= schedule.startWeek
   and :weekOfTerm <= schedule.endWeek
-  and ((schedule.oddEven = 0) or (schedule.oddEven = :weekOfTerm % 2)) and courseClass.id = cp.id
+  and (schedule.oddEven = 0 or (:weekOfTerm - schedule.oddEven ) % 2 = 0) and courseClass.id = cp.id
 ''', [ termId: term.id,
        teacherId: cmd.teacherId == 'null' ? '%' : cmd.teacherId,
        place: cmd.place == 'null' ? '%' : "${cmd.place}%",
