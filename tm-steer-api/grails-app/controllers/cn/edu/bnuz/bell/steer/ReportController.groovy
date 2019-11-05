@@ -8,6 +8,8 @@ import cn.edu.bnuz.bell.report.ReportRequest
 import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 
+import java.text.SimpleDateFormat
+
 /**
  * 统计报表
  */
@@ -109,7 +111,7 @@ class ReportController {
 
     private getReward(String month, Boolean done){
         if (!month || month == "null") {
-            def now = new Date().format("MM")
+            def now = new SimpleDateFormat('MM').format(new Date())
             renderJson([
                     monthes: rewardService.monthes,
                     month: now,
