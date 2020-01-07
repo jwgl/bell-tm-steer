@@ -2,12 +2,14 @@ package cn.edu.bnuz.bell.steer
 
 import cn.edu.bnuz.bell.master.TermService
 import cn.edu.bnuz.bell.organization.Teacher
+import cn.edu.bnuz.bell.security.SecurityService
 import grails.gorm.transactions.Transactional
 
 @Transactional
 class ReportService {
     TermService termService
     ObserverSettingService observerSettingService
+    SecurityService securityService
 
     def groupByDepartment(Integer type) {
         def term = termService.activeTerm
@@ -71,11 +73,13 @@ join form.observer observer
 join observer.department department
 where form.termId = :termId
  and form.status > 0
- and form.observerType = :type
+ and form.observerType in (:type)
  and department.name like :dept
 group by observer.id, observer.name, department.name
 order by department.name
-''', [termId: term.id, type: 2, dept: observerSettingService.isAdmin() ? "%" : dept]
+''', [termId: term.id,
+      type: securityService.hasRole("ROLE_DEAN_OF_TEACHING") ? [2, 3] : [2],
+      dept: observerSettingService.isAdmin() ? "%" : dept]
         return [
                 list: result,
         ]
