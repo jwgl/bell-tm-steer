@@ -212,6 +212,10 @@ where scheduleTeacher.id = :teacherId
                 }
             }
         }
+        // 临时关闭录入
+        schedules.each { item ->
+            item['cantObserver'] = false
+        }
     }
 
 }

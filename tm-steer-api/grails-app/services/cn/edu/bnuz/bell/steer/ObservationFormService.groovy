@@ -52,7 +52,7 @@ class ObservationFormService {
             lectureWeek: cmd.observationWeek,
             totalSection: cmd.totalSection,
             teachingMethods: cmd.teachingMethods,
-            method: cmd.method,
+            method: cmd.method ?: 1,
             recommend: cmd.recommend,
             recommendReason: cmd.recommendReason,
             teachingEnvironment: cmd.teachingEnvironment,
