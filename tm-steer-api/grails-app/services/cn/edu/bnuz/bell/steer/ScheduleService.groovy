@@ -51,7 +51,7 @@ select new map(
     p.seat as seat,
     p.type as type
 )
- from Place p where p.enabled = true and p.isExternal=false
+ from Place p where p.isExternal=false
   and p.building like :building and p.name like :query
 ''',[building: building == null ? "%" : building,
      query: "%${placeName}%"],[max: 10]
@@ -212,10 +212,10 @@ where scheduleTeacher.id = :teacherId
                 }
             }
         }
-        // 临时关闭录入
-        schedules.each { item ->
-            item['cantObserver'] = false
-        }
+        // 临时关闭录入但保留课表可查
+//        schedules.each { item ->
+//            item['cantObserver'] = true
+//        }
     }
 
 }
